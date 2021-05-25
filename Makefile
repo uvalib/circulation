@@ -7,7 +7,7 @@ GOGET = $(GOCMD) get
 GOMOD = $(GOCMD) mod
 GOVET = $(GOCMD) vet
 
-BASE_NAME=curio
+BASE_NAME=circulation
 
 build: darwin web
 
