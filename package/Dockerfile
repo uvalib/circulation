@@ -55,7 +55,7 @@ ARG BUILD_TAG
 RUN test -n "$BUILD_TAG" && touch $APP_HOME/buildtag.build-$BUILD_TAG || touch $APP_HOME/buildtag.build-0
 
 # Specify the user
-#USER webservice
+USER webservice
 
 #
 # end of file
