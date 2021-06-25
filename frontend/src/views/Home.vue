@@ -2,8 +2,7 @@
    <div class="home">
       <div class="header" role="banner">
          <div class="library-link">
-            <UvaLibraryLogo v-if="isKiosk" />
-            <a v-else target="_blank" href="https://library.virginia.edu">
+            <a target="_blank" href="https://library.virginia.edu">
                <UvaLibraryLogo />
             </a>
          </div>
@@ -13,18 +12,22 @@
       </div>
       <div class="body">
          <h2>Welcome to the UVA Library circulation tool</h2>
+         <p>TEST: {{testData}}</p>
       </div>
    </div>
 </template>
 
 <script>
 import UvaLibraryLogo from "@/components/UvaLibraryLogo";
-
+import { mapState } from 'vuex'
 export default {
    name: "Home",
    components: {
       UvaLibraryLogo,
    },
+   computed: mapState({
+      testData: state => state.testData,
+   })
 };
 </script>
 
