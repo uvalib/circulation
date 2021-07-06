@@ -4,7 +4,7 @@
 #
 
 # run the server
-cd bin; ./circulation -solr $CIRCDATA_SOLR_URL -core $CIRCDATA_SOLR_CORE
+cd bin; ./circulation -solr $CIRCDATA_SOLR_URL -solrcore $CIRCDATA_SOLR_CORE
 
 # return the status
 exit $?
