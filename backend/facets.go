@@ -35,7 +35,7 @@ func (svc *serviceContext) getFacets(c *gin.Context) {
 		qParams = append(qParams, "rows=0")
 		qParams = append(qParams, "facet.sort=alpha")
 
-		solrURL := fmt.Sprintf("http://%s:%d/solr/%s/select?%s", svc.SolrURL, svc.SolrPort, svc.SolrCore, strings.Join(qParams, "&"))
+		solrURL := fmt.Sprintf("%s/solr/%s/select?%s", svc.SolrURL, svc.SolrCore, strings.Join(qParams, "&"))
 		resp, err := svc.getAPIResponse(solrURL)
 		if err != nil {
 			log.Printf("ERROR: solr query failed: %s", err.Error())

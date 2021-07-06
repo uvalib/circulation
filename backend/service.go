@@ -43,13 +43,12 @@ type serviceContext struct {
 	Version    string
 	SolrURL    string
 	SolrCore   string
-	SolrPort   int
 	HTTPClient *http.Client
 }
 
 // InitializeService sets up the service context for all API handlers
 func initializeService(version string, cfg *configData) *serviceContext {
-	ctx := serviceContext{Version: version, SolrURL: cfg.solrURL, SolrCore: cfg.solrCore, SolrPort: cfg.solrPort}
+	ctx := serviceContext{Version: version, SolrURL: cfg.solrURL, SolrCore: cfg.solrCore}
 
 	log.Printf("INFO: create HTTP client...")
 	defaultTransport := &http.Transport{
