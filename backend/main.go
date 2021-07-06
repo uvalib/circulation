@@ -29,6 +29,7 @@ func main() {
 	router.GET("/healthcheck", svc.healthCheck)
 	api := router.Group("/api")
 	{
+		api.GET("/facets", svc.getFacets)
 		api.GET("/search", svc.searchHandler)
 	}
 
