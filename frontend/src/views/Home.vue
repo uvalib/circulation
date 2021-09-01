@@ -11,24 +11,51 @@
          </div>
       </div>
       <div class="body">
-         <h2>Welcome to the UVA Library circulation tool</h2>
-         <p>TEST: {{testData}}</p>
+         <h1>Search User Circulation Data</h1>
+         <div class="work" v-if="working" >
+            <WaitSpinner :message="waitMessage" />
+         </div>
+         <div v-else class="search-form">
+            <div v-for="(sf,idx) in searchFacets" :key="`sectiion-${idx+1}`">
+               <DateSection v-if="sf.section == 'Date'" />
+               <QuerySection v-else :name="sf.section" />
+            </div>
+         </div>
+         <FacetPicker v-if="showPicker" />
       </div>
    </div>
 </template>
 
 <script>
-import UvaLibraryLogo from "@/components/UvaLibraryLogo";
-import { mapState } from 'vuex'
+import DateSection from "@/components/DateSection"
+import QuerySection from "@/components/QuerySection"
+import WaitSpinner from "@/components/WaitSpinner"
+import UvaLibraryLogo from "@/components/UvaLibraryLogo"
+import FacetPicker from "@/components/FacetPicker"
+import { mapFields } from 'vuex-map-fields'
 export default {
    name: "Home",
    components: {
-      UvaLibraryLogo,
+      UvaLibraryLogo, WaitSpinner, DateSection, QuerySection, FacetPicker
    },
-   computed: mapState({
-      testData: state => state.testData,
-   })
-};
+   data() {
+      return {
+         waitMessage: "Initializing system...",
+         currSection: "",
+      }
+    },
+   computed: {
+      ...mapFields({
+         working: 'working',
+         searchFacets: 'searchFacets',
+         showPicker: 'showPicker'
+      })
+   },
+   created() {
+      this.working = true
+      this.$store.dispatch("getSearchFacets")
+   }
+}
 </script>
 
 <style scoped lang="scss">
@@ -64,11 +91,15 @@ div.site-link {
       }
    }
 }
+.work {
+   margin-top: 20px;
+}
 .body {
    padding: 25px;
-   h2 {
-      font-size: 1.15em;
-      color: var(--uvalib-text);
+   h1 {
+      font-size: 1.4em;
+      color: var(--uvalib-brand-orange);
+      margin-bottom: 35px;
    }
 }
 </style>

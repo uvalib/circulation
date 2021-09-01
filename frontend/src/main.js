@@ -7,5 +7,7 @@ const app = createApp(App)
 app.use(store)
 app.use(router)
 
+import '@fortawesome/fontawesome-free/css/all.css'
+
 // actually mount to DOM
 app.mount('#app')
