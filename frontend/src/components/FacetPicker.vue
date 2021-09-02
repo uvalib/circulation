@@ -4,7 +4,7 @@
          <div class="title">{{targetSection}} : {{facetLabel(targetSection, targetFacet)}}</div>
          <div class="scroller">
             <div class="val" v-for="val in facetValues(targetSection, targetFacet)" :key="val">
-               <span>{{val}}</span>
+               <label :for="`${val}-cb`"><input :id="`${val}-cb`" class="cb" type="checkbox">{{val}}</label>
             </div>
          </div>
          <div class="toolbar">
@@ -58,6 +58,7 @@ export default {
       border-radius: 5px;
       min-width: 300px;
       word-break: break-word;
+
       .title {
          background:  var(--uvalib-blue-alt-light);
          font-size: 1.1em;
@@ -77,6 +78,13 @@ export default {
          border-radius: 4px;
          .val {
             text-align: left;
+            label {
+               cursor: pointer;
+            }
+            .cb {
+               margin-right: 10px;
+               cursor:pointer;
+            }
          }
       }
       .toolbar {
