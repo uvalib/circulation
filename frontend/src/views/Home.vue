@@ -16,9 +16,13 @@
             <WaitSpinner :message="waitMessage" />
          </div>
          <div v-else class="search-form">
-            <div v-for="(sf,idx) in searchFacets" :key="`sectiion-${idx+1}`">
+            <div v-for="(sf,idx) in facets" :key="`sectiion-${idx+1}`">
                <DateSection v-if="sf.section == 'Date'" />
                <QuerySection v-else :name="sf.section" />
+            </div>
+            <div class="toolbar">
+               <button class="main reset" @click="resetForm">Reset Form</button>
+               <button class="main generate" @click="search">Search</button>
             </div>
          </div>
          <FacetPicker v-if="showPicker" />
@@ -47,9 +51,17 @@ export default {
    computed: {
       ...mapFields({
          working: 'working',
-         searchFacets: 'searchFacets',
+         facets: 'facets',
          showPicker: 'showPicker'
       })
+   },
+   methods: {
+      search() {
+         alert("not yet implemented")
+      },
+      resetForm() {
+         this.$store.commit("clearAll")
+      }
    },
    created() {
       this.working = true
@@ -100,6 +112,36 @@ div.site-link {
       font-size: 1.4em;
       color: var(--uvalib-brand-orange);
       margin-bottom: 35px;
+   }
+   .toolbar {
+      margin-top: 15px;
+      padding-top: 25px;
+      border-top: 1px solid var(--uvalib-grey-light);
+      text-align: right;
+      button.main {
+         font-size: 1.1em;
+         font-weight: 100;
+         padding: 10px 20px;
+         border-radius: 5px;
+         cursor: pointer;
+         background-color: var(--uvalib-grey-lightest);
+         border: 1px solid var(--uvalib-grey);
+         color: var(--uvalib-text);
+         &:hover {
+            background-color: var(--uvalib-grey-light);
+         }
+      }
+      button.main.reset {
+         margin-right: 15px;
+      }
+      button.main.generate {
+         background-color: var(--uvalib-brand-blue-light);
+         border: 1px solid var(--uvalib-brand-blue-light);
+         color: white;
+         &:hover {
+            background-color: var(--uvalib-brand-blue-lighter);
+         }
+      }
    }
 }
 </style>

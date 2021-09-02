@@ -1,13 +1,16 @@
 <template>
    <div class="picker-dimmer">
       <div role="dialog" class="picker-dialog">
-         <div class="title">{{targetSection}} : {{facetLabel(targetSection, targetFacet)}}</div>
+         <div class="title">{{targetSection}} : {{facetLabel(targetSection, targetFacetID)}}</div>
          <div class="scroller">
-            <div class="val" v-for="val in facetValues(targetSection, targetFacet)" :key="val">
-               <label :for="`${val}-cb`"><input :id="`${val}-cb`" class="cb" type="checkbox">{{val}}</label>
+            <div class="val" v-for="val in facetValues(targetSection, targetFacetID)" :key="val">
+               <label :for="`${val}-cb`">
+                  <input :id="`${val}-cb`" class="cb" type="checkbox" @change="valueToggled(val)" :checked="isChecked(val)">{{val}}
+               </label>
             </div>
          </div>
          <div class="toolbar">
+            <button class="ok right-pad" @click="clearAll">Clear All</button>
             <button class="ok" @click="closePicker">OK</button>
          </div>
       </div>
@@ -20,17 +23,24 @@ export default {
    computed: {
       ...mapState({
          targetSection: state => state.targetSection,
-         targetFacet: state => state.targetFacet,
+         targetFacetID: state => state.targetFacetID,
       }),
       ...mapGetters({
          facetValues: 'facetValues',
          facetSelections: 'facetSelections',
-         facetLabel: 'facetLabel'
+         facetLabel: 'facetLabel',
+         isChecked: 'isFacetValueSelected'
       }),
    },
    methods: {
       closePicker() {
          this.$store.commit("closeFacetPicker")
+      },
+      clearAll() {
+         this.$store.commit("clearAllFacetSelections")
+      },
+      valueToggled(val) {
+         this.$store.commit("toggleFacetValue", val)
       }
    }
 }
@@ -90,6 +100,9 @@ export default {
       .toolbar {
          text-align: right;
          padding: 0 10px 10px 10px;
+         .right-pad {
+            margin-right: 10px;
+         }
       }
    }
 }

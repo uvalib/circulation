@@ -6,20 +6,21 @@ export default createStore({
    state: {
       working: false,
       fatalError: "",
-      searchFacets: [],
+      facets: [],
       showPicker: false,
       targetSection: "",
-      targetFacet: ""
+      targetFacetID: "",
+      targetFacet: null
    },
    getters: {
       getField,
       sectionFacets:  state => (section) => {
-         let sect = state.searchFacets.find( sf => sf.section == section)
+         let sect = state.facets.find( sf => sf.section == section)
          if (!sect) return []
          return sect.facets
       },
       facetValues:  state => (section, facet) => {
-         let sect = state.searchFacets.find( sf => sf.section == section)
+         let sect = state.facets.find( sf => sf.section == section)
          if (!sect) return []
          let vals = sect.facets.find( f => f.facet == facet)
          if (!vals) return []
@@ -27,7 +28,7 @@ export default createStore({
          return vals.values
       },
       facetSelections:  state => (section, facet) => {
-         let sect = state.searchFacets.find( sf => sf.section == section)
+         let sect = state.facets.find( sf => sf.section == section)
          if (!sect) return []
          let vals = sect.facets.find( f => f.facet == facet)
          if (!vals) return []
@@ -35,31 +36,63 @@ export default createStore({
          return vals.selected
       },
       facetLabel:  state => (section, facet) => {
-         let sect = state.searchFacets.find( sf => sf.section == section)
+         let sect = state.facets.find( sf => sf.section == section)
          let f = sect.facets.find( f => f.facet == facet)
          return f.label
+      },
+
+      isFacetValueSelected: state => (val) => {
+         if (state.targetFacet) {
+            return (state.targetFacet.selected.findIndex( s => s == val) > -1)
+         }
+         return false
       }
    },
    mutations: {
       updateField,
+      clearAll(state) {
+         state.facets.forEach( sf => {
+            sf.facets.forEach( f => {
+               f.selected.splice(0, f.selected.length)
+               f.selected.push("Any")
+            })
+         })
+      },
+      toggleFacetValue(state, val) {
+         if (!state.targetFacet) return
+
+         let newIdx = state.targetFacet.selected.findIndex(s => s== val )
+         if (newIdx == -1 ) {
+            let anyIdx = state.targetFacet.selected.findIndex(s => s=="Any")
+            if (anyIdx > -1) {
+               state.targetFacet.selected.splice(anyIdx, 1)
+            }
+            state.targetFacet.selected.push(val)
+         } else {
+            state.targetFacet.selected.splice(newIdx, 1)
+            if (state.targetFacet.selected.length == 0) {
+               state.targetFacet.selected.push("Any")
+            }
+         }
+      },
+      clearAllFacetSelections(state) {
+         if (!state.targetFacet) return
+
+         state.targetFacet.selected.splice(0, state.targetFacet.selected.length)
+         state.targetFacet.selected.push("Any")
+      },
       closeFacetPicker(state) {
-         state.targetFacet = ""
+         state.targetFacetID = ""
          state.targetSection = ""
+         state.targetFacet = null
          state.showPicker = false
       },
       showFacetPicker(state, {section, facet}) {
-         state.targetFacet = facet
+         state.targetFacetID = facet
          state.targetSection = section
+         let sect = state.facets.find( sf => sf.section == state.targetSection)
+         state.targetFacet = sect.facets.find( f => f.facet == state.targetFacetID)
          state.showPicker = true
-      },
-      addFacetSelection(state, {section, facet, value}) {
-         let sect = state.searchFacets.find( sf => sf.section == section)
-         let f = sect.facets.find( f => f.facet == facet)
-         f.selected.push(value)
-         let anyIdx = f.selected.findIndex(s => s=="Any")
-         if (anyIdx > -1) {
-            f.selected.splice(anyIdx, 1)
-         }
       },
       setWorking(state, flag) {
          state.working = flag
@@ -68,19 +101,19 @@ export default createStore({
          state.fatalError = err
       },
       setSearchFacets(state, data) {
-         state.searchFacets.splice(0, state.searchFacets.length)
+         state.facets.splice(0, state.facets.length)
          let currSection = {section: "", facets: []}
          data.forEach( f => {
             if (f.section != currSection.section) {
                if (currSection.section != "") {
-                  state.searchFacets.push(currSection)
+                  state.facets.push(currSection)
                }
                currSection = {section: f.section, facets: []}
             }
             f.selected = ["Any"]
             currSection.facets.push(f)
          })
-         state.searchFacets.push(currSection)
+         state.facets.push(currSection)
       }
    },
    actions: {
