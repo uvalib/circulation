@@ -11,7 +11,10 @@ export default createStore({
       targetSection: "",
       targetFacetID: "",
       targetFacet: null,
-      dateCriteria: []
+      dateCriteria: [],
+      timeStart: "",
+      timeEnd: "",
+      allDay: true
    },
    getters: {
       getField,
