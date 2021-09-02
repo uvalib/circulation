@@ -6,7 +6,7 @@
             <td class="label">{{f.label}}:</td>
             <td class="data">
                <button class="edit" @click="showFacetValues(f.facet)"><i class="far fa-edit"></i></button>
-               <span>{{facetSelections(name,f.facet).join(", ")}}</span>
+               <span class="selection" @click="showFacetValues(f.facet)">{{facetSelections(name,f.facet).join(", ")}}</span>
             </td>
          </tr>
       </table>
@@ -34,9 +34,6 @@ export default {
       showFacetValues( facet ) {
          this.$store.commit("showFacetPicker", {section: this.name, facet: facet})
       }
-      // selectionChanged(e) {
-      //    this.$store.commit("addFacetSelection", {section: this.name, facet: "user_role_a", value: e})
-      // }
    }
 }
 </script>
@@ -59,6 +56,9 @@ export default {
          width: 175px;
          font-weight: bold;
       }
+   }
+   span.selection {
+      cursor: pointer;
    }
    .edit {
       border: none;

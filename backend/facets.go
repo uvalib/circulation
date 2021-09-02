@@ -34,6 +34,7 @@ func (svc *serviceContext) getFacets(c *gin.Context) {
 		{Label: "Item Library", Facet: "item_library_a", Type: "select", Section: "Location"},
 		{Label: "Item Location", Facet: "home_loc_a", Type: "select", Section: "Location"},
 		{Label: "Reserve Desk", Facet: "reserve_a", Type: "select", Section: "Location"},
+		{Label: "User Library", Facet: "user_library_a", Type: "select", Section: "Location"},
 		{Label: "Primary Subject", Facet: "call_number_narrow_a", Type: "select", Section: "Item"},
 		// {Label: "Subject", Facet: "subject_a", Type: "lookup", Section: "Item"},
 		{Label: "Item Class Scheme", Facet: "item_class_scheme_a", Type: "select", Section: "Item"},

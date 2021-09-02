@@ -10,7 +10,8 @@ export default createStore({
       showPicker: false,
       targetSection: "",
       targetFacetID: "",
-      targetFacet: null
+      targetFacet: null,
+      dateCriteria: []
    },
    getters: {
       getField,
@@ -50,6 +51,12 @@ export default createStore({
    },
    mutations: {
       updateField,
+      addDate(state) {
+         state.dateCriteria.push( ({ op: "AND", value: "", comparison: "EQUAL", endVal: "" }))
+      },
+      removeDate(state, idx) {
+         state.dateCriteria.splice(idx, 1)
+      },
       clearAll(state) {
          state.facets.forEach( sf => {
             sf.facets.forEach( f => {
@@ -57,6 +64,7 @@ export default createStore({
                f.selected.push("Any")
             })
          })
+         state.dateCriteria.splice(0, state.dateCriteria.length)
       },
       toggleFacetValue(state, val) {
          if (!state.targetFacet) return
@@ -86,6 +94,9 @@ export default createStore({
          state.targetSection = ""
          state.targetFacet = null
          state.showPicker = false
+         const body = document.body
+         body.style.height = ''
+         body.style.overflowY = ''
       },
       showFacetPicker(state, {section, facet}) {
          state.targetFacetID = facet
@@ -93,6 +104,9 @@ export default createStore({
          let sect = state.facets.find( sf => sf.section == state.targetSection)
          state.targetFacet = sect.facets.find( f => f.facet == state.targetFacetID)
          state.showPicker = true
+         const body = document.body
+         body.style.height = '100vh'
+         body.style.overflowY = 'hidden'
       },
       setWorking(state, flag) {
          state.working = flag
