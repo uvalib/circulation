@@ -22,7 +22,7 @@ func (svc *serviceContext) getFacets(c *gin.Context) {
 	log.Printf("INFO: get facets")
 	out := make([]facetInfo, 0)
 	facetNames := []facetInfo{
-		{Label: "Date", Facet: "checkout_date", Type: "date", Section: "Date"},
+		{Label: "Date", Facet: "checkout_date_range", Type: "date", Section: "Date"},
 		{Label: "School", Facet: "school_a", Type: "select", Section: "Organization"},
 		{Label: "Department", Facet: "department_a", Type: "select", Section: "Organization"},
 		{Label: "User Role", Facet: "user_role_a", Type: "select", Section: "User"},

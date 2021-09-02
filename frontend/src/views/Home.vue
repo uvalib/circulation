@@ -20,6 +20,7 @@
                <DateSection v-if="sf.section == 'Date'" />
                <QuerySection v-else :name="sf.section" />
             </div>
+            <p class="error">{{queryError}}</p>
             <div class="toolbar">
                <button class="main reset" @click="resetForm">Reset Form</button>
                <button class="main generate" @click="search">Search</button>
@@ -37,6 +38,7 @@ import WaitSpinner from "@/components/WaitSpinner"
 import UvaLibraryLogo from "@/components/UvaLibraryLogo"
 import FacetPicker from "@/components/FacetPicker"
 import { mapFields } from 'vuex-map-fields'
+import { mapState } from 'vuex'
 export default {
    name: "Home",
    components: {
@@ -46,6 +48,7 @@ export default {
       return {
          waitMessage: "Initializing system...",
          currSection: "",
+         queryError: ""
       }
     },
    computed: {
@@ -53,11 +56,81 @@ export default {
          working: 'working',
          facets: 'facets',
          showPicker: 'showPicker'
-      })
+      }),
+      ...mapState({
+         dateCriteria: state => state.dateCriteria,
+         allDay: state => state.allDay,
+         timeStart: state => state.timeStart,
+         timeEnd: state => state.timeEnd,
+      }),
    },
    methods: {
       search() {
-         alert("not yet implemented")
+         let badDate = false
+         this.dateCriteria.some( df => {
+            if (!this.validDate(df.value)) {
+               badDate = true
+            }
+            if (df.comparison == "BETWEEN" && !this.validDate(df.endVal) ) {
+               badDate = true
+            }
+            return badDate == true
+         })
+
+         if (badDate) {
+            this.queryError = "All dates must be in the form YYYY, YYYY-MM or YYYY-MM-DD"
+            return
+         }
+
+         if ( this.allDay == false) {
+            if ( !this.validTime(this.timeStart) || !this.validTime(this.timeEnd)) {
+               this.queryError = "All times must be in the form HH:MM:SS with a 24 hour clock"
+               return
+            }
+         }
+
+         this.waitMessage = "Searching..."
+         this.$store.dispatch("search")
+      },
+      validTime(timeStr) {
+         let parts = timeStr.split("-")
+         if (parts.length != 3) {
+            return false
+         }
+         let bad = false
+         parts.forEach( (p,idx) => {
+            let timeNum = parseInt(p, 10)
+            if (idx == 0) {
+               if ( timeNum <0 || timeNum > 23 ) {
+                  bad = true
+               }
+            } else {
+               if ( timeNum <0 || timeNum > 59 ) {
+                  bad = true
+               }
+            }
+         })
+         return !bad
+      },
+      validDate(dateStr) {
+         let parts = dateStr.split("-")
+         if (parts.length > 3 || parts.length == 0) {
+           return false
+         }
+
+         let badDate = false
+         parts.forEach( (p,idx) => {
+            if (idx == 0) {
+               if ( p.match(/^\d{4}$/) == null ) {
+                  badDate = true
+               }
+            } else {
+               if ( p.match(/^\d{2}$/) == null ) {
+                  badDate = true
+               }
+            }
+         })
+         return !badDate
       },
       resetForm() {
          this.$store.commit("clearAll")
@@ -105,6 +178,11 @@ div.site-link {
 }
 .work {
    margin-top: 20px;
+}
+.error {
+   font-size: 1.1em;
+   font-style: italic;
+   color: var(--uvalib-red-emergency);
 }
 .body {
    padding: 25px;

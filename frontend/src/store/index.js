@@ -14,7 +14,9 @@ export default createStore({
       dateCriteria: [],
       timeStart: "",
       timeEnd: "",
-      allDay: true
+      allDay: true,
+      page: 0,
+      pageSize: 50
    },
    getters: {
       getField,
@@ -50,6 +52,27 @@ export default createStore({
             return (state.targetFacet.selected.findIndex( s => s == val) > -1)
          }
          return false
+      },
+      dateParam(state) {
+         let out = ""
+         state.dateCriteria.forEach( dc => {
+            if (out.length > 0) {
+               out += ` ${dc.op}`
+            }
+            if (dc.comparison == "BETWEEN") {
+               out += ` ${dc.value} TO ${dc.endVal}`
+            } else {
+               out += ` ${dc.comparison} ${dc.value}`
+            }
+         })
+         return out
+      },
+      timeParam(state) {
+         let out = ""
+         if ( state.allDay == false) {
+            out = `${state.timeStart} TO ${timeEnd}`
+         }
+         return out
       }
    },
    mutations: {
@@ -142,6 +165,11 @@ export default createStore({
             ctx.commit("setFatalError", error)
             ctx.commit("setWorking", false)
          })
+      },
+      search(ctx) {
+         ctx.commit("setWorking", true)
+         console.log("date: "+ctx.getters.dateParam)
+         ctx.commit("setWorking", false)
       }
    },
 })
