@@ -6,6 +6,7 @@ export default createStore({
    state: {
       working: false,
       fatalError: "",
+      message: "",
       facets: [],
       showPicker: false,
       targetSection: "",
@@ -153,7 +154,13 @@ export default createStore({
             currSection.facets.push(f)
          })
          state.facets.push(currSection)
-      }
+      },
+      clearMessage(state) {
+         state.message = ""
+      },
+      setMessage(state, m) {
+         state.message = m
+      },
    },
    actions: {
       getSearchFacets(ctx) {
@@ -176,7 +183,7 @@ export default createStore({
             ctx.commit("setWorking", false)
             console.log(response.data)
          }).catch( error => {
-            console.log(error)
+            ctx.commit("setMessage", error)
             ctx.commit("setWorking", false)
          })
       }

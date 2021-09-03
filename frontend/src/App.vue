@@ -1,8 +1,18 @@
 <template>
    <div id="app">
       <router-view />
+      <MessageBox />
    </div>
 </template>
+
+<script>
+import MessageBox from "@/components/MessageBox"
+export default {
+   components: {
+      MessageBox
+   },
+}
+</script>
 
 <style lang="scss">
 :root {

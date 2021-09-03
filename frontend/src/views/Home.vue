@@ -15,6 +15,11 @@
          <div class="work" v-if="working" >
             <WaitSpinner :message="waitMessage" />
          </div>
+         <div v-else-if="fatalError" class="fatal-err">
+            <h2>Internal System Error</h2>
+            <p>{{fatalError}}</p>
+            <p>Sorry for the inconvenience! We are aware of the issue and are working to resolve it. Please check back later.</p>
+         </div>
          <div v-else class="search-form">
             <div v-for="(sf,idx) in facets" :key="`sectiion-${idx+1}`">
                <DateSection v-if="sf.section == 'Date'" />
@@ -62,6 +67,7 @@ export default {
          allDay: state => state.allDay,
          timeStart: state => state.timeStart,
          timeEnd: state => state.timeEnd,
+         fatalError: state => state.fatalError
       }),
    },
    methods: {
@@ -174,6 +180,12 @@ div.site-link {
       &:hover {
          text-decoration: underline;
       }
+   }
+}
+.fatal-err {
+   margin-top: 5%;
+   h2 {
+      margin: 10px;
    }
 }
 .work {
