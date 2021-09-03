@@ -30,7 +30,7 @@ func main() {
 	api := router.Group("/api")
 	{
 		api.GET("/facets", svc.getFacets)
-		api.GET("/search", svc.searchHandler)
+		api.POST("/search", svc.searchHandler)
 	}
 
 	// Note: in dev mode, this is never actually used. The front end is served

@@ -54,15 +54,14 @@ export default createStore({
          return false
       },
       dateParam(state) {
-         let out = ""
+         let out = []
          state.dateCriteria.forEach( dc => {
-            if (out.length > 0) {
-               out += ` ${dc.op}`
-            }
             if (dc.comparison == "BETWEEN") {
-               out += ` ${dc.value} TO ${dc.endVal}`
+               out.push({op: dc.op, q: `${dc.value} TO ${dc.endVal}`})
+            } else if (dc.comparison == "EQUAL") {
+               out.push({op: dc.op, q: dc.value})
             } else {
-               out += ` ${dc.comparison} ${dc.value}`
+               out.push({op: dc.op, q: `${dc.comparison} ${dc.value}`})
             }
          })
          return out
@@ -70,7 +69,7 @@ export default createStore({
       timeParam(state) {
          let out = ""
          if ( state.allDay == false) {
-            out = `${state.timeStart} TO ${timeEnd}`
+            out = `${state.timeStart} TO ${state.timeEnd}`
          }
          return out
       }
@@ -169,7 +168,17 @@ export default createStore({
       search(ctx) {
          ctx.commit("setWorking", true)
          console.log("date: "+ctx.getters.dateParam)
-         ctx.commit("setWorking", false)
+         let req = {
+            pagination: {start: ctx.state.page*ctx.state.pageSize, rows: ctx.state.pageSize},
+            date: ctx.getters.dateParam,
+         }
+         axios.post( `/api/search`, req ).then( response => {
+            ctx.commit("setWorking", false)
+            console.log(response.data)
+         }).catch( error => {
+            console.log(error)
+            ctx.commit("setWorking", false)
+         })
       }
    },
 })
