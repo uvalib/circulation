@@ -1,38 +1,21 @@
 <template>
    <div class="home">
-      <div class="header" role="banner">
-         <div class="library-link">
-            <a target="_blank" href="https://library.virginia.edu">
-               <UvaLibraryLogo />
-            </a>
+      <h1>Search User Circulation Data</h1>
+      <div class="work" v-if="working" >
+         <WaitSpinner :message="waitMessage" />
+      </div>
+      <div v-else class="search-form">
+         <div v-for="(sf,idx) in facets" :key="`sectiion-${idx+1}`">
+            <DateSection v-if="sf.section == 'Date'" />
+            <QuerySection v-else :name="sf.section" />
          </div>
-         <div class="site-link">
-            <router-link to="/">Circulation</router-link>
+         <p class="error">{{queryError}}</p>
+         <div class="toolbar">
+            <button class="main reset" @click="resetForm">Reset Form</button>
+            <button class="main generate" @click="search">Search</button>
          </div>
       </div>
-      <div class="body">
-         <h1>Search User Circulation Data</h1>
-         <div class="work" v-if="working" >
-            <WaitSpinner :message="waitMessage" />
-         </div>
-         <div v-else-if="fatalError" class="fatal-err">
-            <h2>Internal System Error</h2>
-            <p>{{fatalError}}</p>
-            <p>Sorry for the inconvenience! We are aware of the issue and are working to resolve it. Please check back later.</p>
-         </div>
-         <div v-else class="search-form">
-            <div v-for="(sf,idx) in facets" :key="`sectiion-${idx+1}`">
-               <DateSection v-if="sf.section == 'Date'" />
-               <QuerySection v-else :name="sf.section" />
-            </div>
-            <p class="error">{{queryError}}</p>
-            <div class="toolbar">
-               <button class="main reset" @click="resetForm">Reset Form</button>
-               <button class="main generate" @click="search">Search</button>
-            </div>
-         </div>
-         <FacetPicker v-if="showPicker" />
-      </div>
+      <FacetPicker v-if="showPicker" />
    </div>
 </template>
 
@@ -40,19 +23,17 @@
 import DateSection from "@/components/DateSection"
 import QuerySection from "@/components/QuerySection"
 import WaitSpinner from "@/components/WaitSpinner"
-import UvaLibraryLogo from "@/components/UvaLibraryLogo"
 import FacetPicker from "@/components/FacetPicker"
 import { mapFields } from 'vuex-map-fields'
 import { mapState } from 'vuex'
 export default {
    name: "Home",
    components: {
-      UvaLibraryLogo, WaitSpinner, DateSection, QuerySection, FacetPicker
+      WaitSpinner, DateSection, QuerySection, FacetPicker
    },
    data() {
       return {
          waitMessage: "Initializing system...",
-         currSection: "",
          queryError: ""
       }
     },
@@ -67,7 +48,6 @@ export default {
          allDay: state => state.allDay,
          timeStart: state => state.timeStart,
          timeEnd: state => state.timeEnd,
-         fatalError: state => state.fatalError
       }),
    },
    methods: {
@@ -143,51 +123,15 @@ export default {
       }
    },
    created() {
-      this.working = true
-      this.$store.dispatch("getSearchFacets")
+      if (!this.$route.query.refine) {
+         this.working = true
+         this.$store.dispatch("getSearchFacets")
+      }
    }
 }
 </script>
 
 <style scoped lang="scss">
-div.header {
-   background-color: var(--uvalib-brand-blue);
-   color: white;
-   padding: 1vw 20px;
-   text-align: left;
-   position: relative;
-   box-sizing: border-box;
-   display: flex;
-   flex-direction: row;
-   flex-wrap: nowrap;
-   justify-content: space-between;
-   align-content: stretch;
-   align-items: center;
-}
-div.library-link {
-   height: 45px;
-   width: 220px;
-   order: 0;
-   flex: 0 1 auto;
-   align-self: flex-start;
-}
-div.site-link {
-   order: 0;
-   font-size: 1.5em;
-   a {
-      color: white;
-      text-decoration: none;
-      &:hover {
-         text-decoration: underline;
-      }
-   }
-}
-.fatal-err {
-   margin-top: 5%;
-   h2 {
-      margin: 10px;
-   }
-}
 .work {
    margin-top: 20px;
 }
@@ -196,7 +140,7 @@ div.site-link {
    font-style: italic;
    color: var(--uvalib-red-emergency);
 }
-.body {
+.home {
    padding: 25px;
    h1 {
       font-size: 1.4em;
@@ -207,7 +151,7 @@ div.site-link {
       margin-top: 15px;
       padding-top: 25px;
       border-top: 1px solid var(--uvalib-grey-light);
-      text-align: right;
+      text-align: center;
       button.main {
          font-size: 1.1em;
          font-weight: 100;

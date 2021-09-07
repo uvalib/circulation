@@ -31,7 +31,9 @@ type hitValue struct {
 	Value []string `json:"value"`
 }
 
-type searchHit []hitValue
+type searchHit struct {
+	Fields []hitValue `json:"fields"`
+}
 
 func (svc *serviceContext) searchHandler(c *gin.Context) {
 	log.Printf("INFO: call to search solr received")
@@ -83,7 +85,7 @@ func (svc *serviceContext) extractHitData(solrHits []solrDocument) *[]searchHit 
 	out := make([]searchHit, 0)
 	for _, doc := range solrHits {
 		log.Printf("HIT DATA----------------------")
-		hit := make([]hitValue, 0)
+		hit := searchHit{Fields: make([]hitValue, 0)}
 		for _, sm := range svc.SolrMappings {
 			hv := hitValue{Label: sm.Label}
 			solrVal := doc[sm.SolrField]
@@ -91,9 +93,8 @@ func (svc *serviceContext) extractHitData(solrHits []solrDocument) *[]searchHit 
 			strVal, ok := solrVal.(string)
 			if ok {
 				hv.Value = append(hv.Value, strVal)
-				hit = append(hit, hv)
+				hit.Fields = append(hit.Fields, hv)
 			} else {
-				// PROBLEM... the actual data is []interface{}
 				arrayVal, ok := solrVal.([]interface{})
 				if ok {
 					for _, sv := range arrayVal {
@@ -102,7 +103,7 @@ func (svc *serviceContext) extractHitData(solrHits []solrDocument) *[]searchHit 
 							hv.Value = append(hv.Value, strVal)
 						}
 					}
-					hit = append(hit, hv)
+					hit.Fields = append(hit.Fields, hv)
 				} else {
 					log.Printf("INFO: %s:%v is not a string or array of strings", sm.SolrField, solrVal)
 				}

@@ -17,7 +17,9 @@ export default createStore({
       timeEnd: "",
       allDay: true,
       page: 0,
-      pageSize: 50
+      pageSize: 50,
+      hits: [],
+      totalHits: -1,
    },
    getters: {
       getField,
@@ -77,6 +79,14 @@ export default createStore({
    },
    mutations: {
       updateField,
+      addSearchHits(state, hitData) {
+         state.totalHits = hitData.total
+         hitData.hits.forEach( h => state.hits.push(h) )
+      },
+      clearSearchHits(state) {
+         state.totalHits = -1
+         state.hits.splice(0, state.hits.length)
+      },
       addDate(state) {
          state.dateCriteria.push( ({ op: "AND", value: "", comparison: "EQUAL", endVal: "" }))
       },
@@ -180,8 +190,10 @@ export default createStore({
             date: ctx.getters.dateParam,
          }
          axios.post( `/api/search`, req ).then( response => {
+            ctx.commit("clearSearchHits")
+            ctx.commit("addSearchHits", response.data)
             ctx.commit("setWorking", false)
-            console.log(response.data)
+            this.router.push("/results")
          }).catch( error => {
             ctx.commit("setMessage", error)
             ctx.commit("setWorking", false)
