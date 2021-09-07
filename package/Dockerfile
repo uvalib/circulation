@@ -11,6 +11,7 @@ WORKDIR /build
 COPY go.mod go.sum Makefile ./
 COPY backend ./backend
 COPY frontend ./frontend
+COPY data ./date
 RUN make linux-full
 
 #
@@ -28,12 +29,12 @@ RUN addgroup webservice && adduser webservice -G webservice -D
 ENV TZ=UTC
 RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Specify home 
+# Specify home
 ENV APP_HOME /circulation-query
 WORKDIR $APP_HOME
 
 # Create necessary directories
-RUN mkdir -p $APP_HOME $APP_HOME/bin $APP_HOME/scripts
+RUN mkdir -p $APP_HOME $APP_HOME/bin $APP_HOME/bin/data $APP_HOME/scripts
 RUN chown -R webservice $APP_HOME && chgrp -R webservice $APP_HOME
 
 # port and run command
@@ -43,11 +44,13 @@ CMD scripts/entry.sh
 # Move in necessary assets
 COPY package/data/container_bash_profile /home/webservice/.profile
 COPY package/scripts/entry.sh $APP_HOME/scripts/entry.sh
+COPY data $APP_HOME/bin/data
 COPY --from=builder /build/bin/circulation.linux $APP_HOME/bin/circulation
 COPY --from=builder /build/bin/public $APP_HOME/bin/public
+COPY data/* $APP_HOME/bin/data/
 
 # Ensure permissions are correct
-RUN chown webservice:webservice /home/webservice/.profile $APP_HOME/scripts/entry.sh $APP_HOME/bin/circulation && chmod 755 /home/webservice/.profile $APP_HOME/scripts/entry.sh $APP_HOME/bin/circulation
+RUN chown webservice:webservice /home/webservice/.profile $APP_HOME/scripts/entry.sh $APP_HOME/bin/circulation $APP_HOME/bin/data && chmod 755 /home/webservice/.profile $APP_HOME/scripts/entry.sh $APP_HOME/bin/circulation $APP_HOME/bin/data
 RUN chown -R webservice:webservice $APP_HOME/bin/public && chmod -R 755 $APP_HOME/bin/public
 
 # Add the build tag

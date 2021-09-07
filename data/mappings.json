@@ -1,0 +1,21 @@
+[{
+   "field": "callnumber_a",
+   "label": "Call Number"
+},
+{
+   "field": "checkout_date",
+   "label": "Checkout Date"
+},
+{
+   "field": "checkout_time_a",
+   "label": "Checkout Time"
+},
+{
+   "field": "checkout_library_a",
+   "label": "Checkout Library"
+},
+{
+   "field": "borrower_profile_str",
+   "label": "Borrower Profile"
+}
+]

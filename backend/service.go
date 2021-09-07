@@ -1,11 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -38,12 +40,18 @@ type solrResponse struct {
 	Response solrResponseDocuments `json:"response,omitempty"`
 }
 
+type solrMapping struct {
+	SolrField string `json:"field"`
+	Label     string `json:"label"`
+}
+
 // ServiceContext contains common data used by all handlers
 type serviceContext struct {
-	Version    string
-	SolrURL    string
-	SolrCore   string
-	HTTPClient *http.Client
+	Version      string
+	SolrURL      string
+	SolrCore     string
+	HTTPClient   *http.Client
+	SolrMappings []solrMapping
 }
 
 // InitializeService sets up the service context for all API handlers
@@ -69,6 +77,19 @@ func initializeService(version string, cfg *configData) *serviceContext {
 		Timeout:   5 * time.Second,
 	}
 	log.Printf("INFO: HTTP Client created")
+
+	log.Printf("INFO: loading solr mapping")
+	mapFile, err := os.Open("data/mappings.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	jsonParser := json.NewDecoder(mapFile)
+	if err = jsonParser.Decode(&ctx.SolrMappings); err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("INFO: solr mappings loaded")
+
 	return &ctx
 }
 
