@@ -7,7 +7,7 @@
       <template v-else>
          <div class="toolbar">
             <button @click="refineClicked">Refine Search</button>
-            <button @click="newlicked">New Search</button>
+            <button @click="newClicked">New Search</button>
          </div>
          <div lass="hits">
             <div class="hit" v-for="(hit,idx) in hits" :key="`hit-${idx}`">

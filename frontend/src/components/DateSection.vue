@@ -41,7 +41,7 @@
          </span>
       </div>
       <div class="pad-top date-hint"><b>Accepted date formats</b>: YYYY, YYYY-MM, YYYY-MM-DD</div>
-      <div class="date-hint"><b>Accepted time format</b>: HH:MM:SS (24hr)</div>
+      <div class="date-hint"><b>Accepted time format</b>: HH:MM (24hr)</div>
    </div>
 </template>
 

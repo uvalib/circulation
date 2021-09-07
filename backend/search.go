@@ -24,6 +24,7 @@ type dateParam struct {
 type searchRequest struct {
 	Pagination paginationData `json:"pagination"`
 	DateQuery  []dateParam    `json:"date"`
+	TimeQuery  string         `json:"time"`
 }
 
 type hitValue struct {
@@ -53,6 +54,10 @@ func (svc *serviceContext) searchHandler(c *gin.Context) {
 		dq := getDateQueryString(req.DateQuery)
 		qParams = append(qParams, fmt.Sprintf("fq=checkout_daterange:%s", url.QueryEscape(dq)))
 	}
+	if len(req.TimeQuery) > 0 {
+		tq := fmt.Sprintf("[%s]", req.TimeQuery)
+		qParams = append(qParams, fmt.Sprintf("fq=checkout_time_str:%s", url.QueryEscape(tq)))
+	}
 
 	solrURL := fmt.Sprintf("%s/solr/%s/select?%s", svc.SolrURL, svc.SolrCore, strings.Join(qParams, "&"))
 	resp, err := svc.getAPIResponse(solrURL)
@@ -70,7 +75,7 @@ func (svc *serviceContext) searchHandler(c *gin.Context) {
 		return
 	}
 
-	log.Printf("INFO: %d hits in solr response", respJSON.Response.NumFound)
+	log.Printf("INFO: %d total hits for solr query", respJSON.Response.NumFound)
 	var out struct {
 		Total int          `json:"total"`
 		Hits  *[]searchHit `json:"hits"`
@@ -84,12 +89,10 @@ func (svc *serviceContext) searchHandler(c *gin.Context) {
 func (svc *serviceContext) extractHitData(solrHits []solrDocument) *[]searchHit {
 	out := make([]searchHit, 0)
 	for _, doc := range solrHits {
-		log.Printf("HIT DATA----------------------")
 		hit := searchHit{Fields: make([]hitValue, 0)}
 		for _, sm := range svc.SolrMappings {
 			hv := hitValue{Label: sm.Label}
 			solrVal := doc[sm.SolrField]
-			log.Printf("field:%s label:%s= type:%T, val:%v", sm.SolrField, sm.Label, solrVal, solrVal)
 			strVal, ok := solrVal.(string)
 			if ok {
 				hv.Value = append(hv.Value, strVal)

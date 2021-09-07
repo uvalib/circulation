@@ -79,8 +79,8 @@ export default {
          this.$store.dispatch("search")
       },
       validTime(timeStr) {
-         let parts = timeStr.split("-")
-         if (parts.length != 3) {
+         let parts = timeStr.split(":")
+         if (parts.length != 2) {
             return false
          }
          let bad = false

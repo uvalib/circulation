@@ -188,6 +188,7 @@ export default createStore({
          let req = {
             pagination: {start: ctx.state.page*ctx.state.pageSize, rows: ctx.state.pageSize},
             date: ctx.getters.dateParam,
+            time: ctx.getters.timeParam,
          }
          axios.post( `/api/search`, req ).then( response => {
             ctx.commit("clearSearchHits")
