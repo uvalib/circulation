@@ -5,8 +5,14 @@
          <tr class="option" v-for="f in sectionFacets(name)" :key="f.facet">
             <td class="label">{{f.label}}:</td>
             <td class="data">
-               <button class="edit" @click="showFacetValues(f.facet)"><i class="far fa-edit"></i></button>
-               <span class="selection" @click="showFacetValues(f.facet)">{{facetSelections(name,f.facet).join(", ")}}</span>
+               <span class="selection" @click="showFacetValues(f.facet)">
+                  <span class="any" v-if="anySelected(name,f.facet) == false">
+                     Any
+                  </span>
+                  <template v-else>
+                     {{facetSelections(name,f.facet).join(", ")}}
+                  </template>
+               </span>
             </td>
          </tr>
       </table>
@@ -31,6 +37,13 @@ export default {
       }),
    },
    methods: {
+      anySelected(name, facet) {
+         let s = this.facetSelections(name, facet)
+         if (s.length == 1 && s[0] == "Any") {
+            return false
+         }
+         return true
+      },
       showFacetValues( facet ) {
          this.$store.commit("showFacetPicker", {section: this.name, facet: facet})
       }
@@ -56,6 +69,10 @@ export default {
          width: 175px;
          font-weight: bold;
       }
+   }
+   .any  {
+      color: #aaa;
+      font-style: italic;
    }
    span.selection {
       cursor: pointer;

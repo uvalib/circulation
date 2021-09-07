@@ -21,10 +21,16 @@ type dateParam struct {
 	Query string `json:"q"`
 }
 
+type filterParam struct {
+	Facet  string   `json:"facet"`
+	Values []string `json:"values"`
+}
+
 type searchRequest struct {
 	Pagination paginationData `json:"pagination"`
 	DateQuery  []dateParam    `json:"date"`
 	TimeQuery  string         `json:"time"`
+	Filters    []filterParam  `json:"filter"`
 }
 
 type hitValue struct {
@@ -57,6 +63,17 @@ func (svc *serviceContext) searchHandler(c *gin.Context) {
 	if len(req.TimeQuery) > 0 {
 		tq := fmt.Sprintf("[%s]", req.TimeQuery)
 		qParams = append(qParams, fmt.Sprintf("fq=checkout_time_str:%s", url.QueryEscape(tq)))
+	}
+	if len(req.Filters) > 0 {
+		for _, f := range req.Filters {
+			q := make([]string, 0)
+			for _, v := range f.Values {
+				q = append(q, fmt.Sprintf("\"%s\"", v))
+			}
+			qs := strings.Join(q, " OR ")
+			qs = fmt.Sprintf("(%s)", qs)
+			qParams = append(qParams, fmt.Sprintf("fq=%s:%s", f.Facet, url.QueryEscape(qs)))
+		}
 	}
 
 	solrURL := fmt.Sprintf("%s/solr/%s/select?%s", svc.SolrURL, svc.SolrCore, strings.Join(qParams, "&"))

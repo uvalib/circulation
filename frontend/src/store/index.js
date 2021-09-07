@@ -75,6 +75,17 @@ export default createStore({
             out = `${state.timeStart} TO ${state.timeEnd}`
          }
          return out
+      },
+      selectedFacets(state) {
+         let out = []
+         state.facets.forEach( sect => {
+            sect.facets.forEach( f => {
+               if (f.selected.length > 1 || f.selected.length == 1 && f.selected[0] != "Any") {
+                  out.push( {facet: f.facet, values: f.selected})
+               }
+            })
+         })
+         return out
       }
    },
    mutations: {
@@ -100,6 +111,9 @@ export default createStore({
                f.selected.push("Any")
             })
          })
+         state.timeStart = ""
+         state.timeEnd = ""
+         state.allDay = true
          state.dateCriteria.splice(0, state.dateCriteria.length)
       },
       toggleFacetValue(state, val) {
@@ -182,13 +196,30 @@ export default createStore({
             ctx.commit("setWorking", false)
          })
       },
-      search(ctx) {
+      loadMore(ctx) {
          ctx.commit("setWorking", true)
-         console.log("date: "+ctx.getters.dateParam)
          let req = {
             pagination: {start: ctx.state.page*ctx.state.pageSize, rows: ctx.state.pageSize},
             date: ctx.getters.dateParam,
             time: ctx.getters.timeParam,
+            filter: ctx.getters.selectedFacets
+         }
+         axios.post( `/api/search`, req ).then( response => {
+            ctx.commit("addSearchHits", response.data)
+            ctx.commit("setWorking", false)
+            this.router.push("/results")
+         }).catch( error => {
+            ctx.commit("setMessage", error)
+            ctx.commit("setWorking", false)
+         })
+      },
+      search(ctx) {
+         ctx.commit("setWorking", true)
+         let req = {
+            pagination: {start: ctx.state.page*ctx.state.pageSize, rows: ctx.state.pageSize},
+            date: ctx.getters.dateParam,
+            time: ctx.getters.timeParam,
+            filter: ctx.getters.selectedFacets
          }
          axios.post( `/api/search`, req ).then( response => {
             ctx.commit("clearSearchHits")

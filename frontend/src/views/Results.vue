@@ -6,8 +6,13 @@
       </div>
       <template v-else>
          <div class="toolbar">
-            <button @click="refineClicked">Refine Search</button>
-            <button @click="newClicked">New Search</button>
+            <span class="controls">
+               <button @click="refineClicked">Refine Search</button>
+               <button @click="newClicked">New Search</button>
+            </span>
+            <span class="info">
+               Showing {{hits.length}} of {{totalHits}} results
+            </span>
          </div>
          <div lass="hits">
             <div class="hit" v-for="(hit,idx) in hits" :key="`hit-${idx}`">
@@ -17,6 +22,9 @@
                      <td class="data">{{formatData(field)}}</td>
                   </tr>
                </table>
+            </div>
+            <div class="more" v-if="hasMore">
+               <button class="more" @click="loadMore">Load More</button>
             </div>
          </div>
       </template>
@@ -43,8 +51,14 @@ export default {
          totalHits: state => state.totalHits,
          pageSize: state => state.pageSize,
       }),
+      hasMore() {
+         return this.hits.length < this.totalHits
+      }
    },
    methods: {
+      loadMore() {
+         this.$store.dispatch("loadMore")
+      },
       refineClicked() {
          this.$router.push("/?refine=true")
       },
@@ -86,7 +100,8 @@ export default {
       background: var(--uvalib-grey-lightest);
       display: flex;
       flex-flow: row nowrap;
-      justify-content: flex-start;
+      justify-content: space-between;
+      align-items: center;
       border-top: 1px solid var(--uvalib-grey);
       border-bottom: 1px solid var(--uvalib-grey);
       button {
@@ -121,6 +136,19 @@ export default {
             width: 100%;
             text-align: left;
          }
+      }
+   }
+   button.more {
+      font-size: 1.1em;
+      font-weight: 100;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: var(--uvalib-brand-blue-light);
+      border: 1px solid var(--uvalib-brand-blue-light);
+      color: white;
+      &:hover {
+         background-color: var(--uvalib-brand-blue-lighter);
       }
    }
 }
