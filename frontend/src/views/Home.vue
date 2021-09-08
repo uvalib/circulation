@@ -7,7 +7,7 @@
       <div v-else class="search-form">
          <div v-for="(sf,idx) in facets" :key="`sectiion-${idx+1}`">
             <DateSection v-if="sf.section == 'Date'" />
-            <QuerySection v-else :name="sf.section" />
+            <FacetSection v-else :name="sf.section" />
          </div>
          <p class="error">{{queryError}}</p>
          <div class="toolbar">
@@ -21,7 +21,7 @@
 
 <script>
 import DateSection from "@/components/DateSection"
-import QuerySection from "@/components/QuerySection"
+import FacetSection from "@/components/FacetSection"
 import WaitSpinner from "@/components/WaitSpinner"
 import FacetPicker from "@/components/FacetPicker"
 import { mapFields } from 'vuex-map-fields'
@@ -29,7 +29,7 @@ import { mapState } from 'vuex'
 export default {
    name: "Home",
    components: {
-      WaitSpinner, DateSection, QuerySection, FacetPicker
+      WaitSpinner, DateSection, FacetSection, FacetPicker
    },
    data() {
       return {

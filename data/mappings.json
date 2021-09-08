@@ -17,5 +17,13 @@
 {
    "field": "borrower_profile_str",
    "label": "Borrower Profile"
+},
+{
+   "field": "subject_main_a",
+   "label": "Primary Subject"
+},
+{
+   "field": "subject_str",
+   "label": "Subject"
 }
 ]

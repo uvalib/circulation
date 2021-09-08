@@ -11,40 +11,49 @@ import (
 )
 
 type facetInfo struct {
-	Section string   `json:"section"`
-	Label   string   `json:"label"`
-	Type    string   `json:"type"` // select, date, text
-	Facet   string   `json:"facet"`
-	Values  []string `json:"values,omitempty"`
+	Section    string   `json:"section"`
+	Label      string   `json:"label"`
+	FilterType string   `json:"filterType"` // select, date, subject
+	Facet      string   `json:"facet"`
+	Values     []string `json:"values,omitempty"`
 }
 
 func (svc *serviceContext) getFacets(c *gin.Context) {
 	log.Printf("INFO: get facets")
 	out := make([]facetInfo, 0)
 	facetNames := []facetInfo{
-		{Label: "Date", Facet: "checkout_date_range", Type: "date", Section: "Date"},
-		{Label: "School", Facet: "school_a", Type: "select", Section: "Organization"},
-		{Label: "Department", Facet: "department_a", Type: "select", Section: "Organization"},
-		{Label: "User Role", Facet: "user_role_a", Type: "select", Section: "User"},
-		{Label: "Borrower Profile", Facet: "borrower_profile_a", Type: "select", Section: "User"},
-		{Label: "Faculty Type", Facet: "job_title_a", Type: "select", Section: "User"},
-		{Label: "Degree Seeking", Facet: "is_degree_seeking_a", Type: "select", Section: "User"},
-		{Label: "Degree Level", Facet: "plan_degree_a", Type: "select", Section: "User"},
-		{Label: "Station Library", Facet: "checkout_library_a", Type: "select", Section: "Location"},
-		{Label: "Item Library", Facet: "item_library_a", Type: "select", Section: "Location"},
-		{Label: "Item Location", Facet: "home_loc_a", Type: "select", Section: "Location"},
-		{Label: "Reserve Desk", Facet: "reserve_a", Type: "select", Section: "Location"},
-		{Label: "User Library", Facet: "user_library_a", Type: "select", Section: "Location"},
-		{Label: "Primary Subject", Facet: "call_number_narrow_a", Type: "select", Section: "Item"},
-		// {Label: "Subject", Facet: "subject_a", Type: "lookup", Section: "Item"},
-		{Label: "Item Class Scheme", Facet: "item_class_scheme_a", Type: "select", Section: "Item"},
-		{Label: "Item Type", Facet: "item_type_a", Type: "select", Section: "Item"},
-		{Label: "Format", Facet: "format_a", Type: "select", Section: "Item"},
-		{Label: "Publication Year", Facet: "pub_year_a", Type: "select", Section: "Item"},
-		{Label: "Language", Facet: "language_a", Type: "select", Section: "Item"}}
+		{Label: "Date", Facet: "checkout_date_range", FilterType: "date", Section: "Date"},
+
+		// org
+		{Label: "School", Facet: "school_a", FilterType: "select", Section: "Organization"},
+		{Label: "Department", Facet: "department_a", FilterType: "select", Section: "Organization"},
+
+		// user
+		{Label: "User Role", Facet: "user_role_a", FilterType: "select", Section: "User"},
+		{Label: "Borrower Profile", Facet: "borrower_profile_a", FilterType: "select", Section: "User"},
+		{Label: "Faculty Type", Facet: "job_title_a", FilterType: "select", Section: "User"},
+		{Label: "Degree Seeking", Facet: "is_degree_seeking_a", FilterType: "select", Section: "User"},
+		{Label: "Degree Level", Facet: "plan_degree_a", FilterType: "select", Section: "User"},
+		// student appointment not populated
+
+		// location
+		{Label: "Station Library", Facet: "checkout_library_a", FilterType: "select", Section: "Location"},
+		{Label: "Item Library", Facet: "item_library_a", FilterType: "select", Section: "Location"},
+		{Label: "Item Location", Facet: "home_loc_a", FilterType: "select", Section: "Location"},
+		{Label: "Reserve Desk", Facet: "reserve_a", FilterType: "select", Section: "Location"},
+		{Label: "User Library", Facet: "user_library_a", FilterType: "select", Section: "Location"},
+
+		// item
+		{Label: "Primary Subject", Facet: "call_number_narrow_a", FilterType: "select", Section: "Item"},
+		{Label: "Subject Fields", Facet: "subject_t", FilterType: "subject", Section: "Item"},
+		{Label: "Item Class Scheme", Facet: "item_class_scheme_a", FilterType: "select", Section: "Item"},
+		{Label: "Item Type", Facet: "item_type_a", FilterType: "select", Section: "Item"},
+		{Label: "Format", Facet: "format_a", FilterType: "select", Section: "Item"},
+		{Label: "Publication Year", Facet: "pub_year_a", FilterType: "select", Section: "Item"},
+		{Label: "Language", Facet: "language_a", FilterType: "select", Section: "Item"}}
 
 	for _, fi := range facetNames {
-		if fi.Type == "select" {
+		if fi.FilterType == "select" {
 			log.Printf("INFO: get facet values for %s", fi.Facet)
 			qParams := make([]string, 0)
 			qParams = append(qParams, fmt.Sprintf("facet.field=%s", fi.Facet))

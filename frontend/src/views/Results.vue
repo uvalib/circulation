@@ -128,9 +128,10 @@ export default {
          border-collapse: collapse;
          td.label {
             text-align: right;
-            padding: 4px 8px;
+            padding: 5px 8px;
             font-weight: bold;
             white-space: nowrap;
+            vertical-align: text-top;
          }
          td.data {
             width: 100%;

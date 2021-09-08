@@ -27,10 +27,11 @@ type filterParam struct {
 }
 
 type searchRequest struct {
-	Pagination paginationData `json:"pagination"`
-	DateQuery  []dateParam    `json:"date"`
-	TimeQuery  string         `json:"time"`
-	Filters    []filterParam  `json:"filter"`
+	Pagination   paginationData `json:"pagination"`
+	DateQuery    []dateParam    `json:"date"`
+	TimeQuery    string         `json:"time"`
+	Filters      []filterParam  `json:"filter"`
+	SubjectQuery string         `json:"subject"`
 }
 
 type hitValue struct {
@@ -74,6 +75,11 @@ func (svc *serviceContext) searchHandler(c *gin.Context) {
 			qs = fmt.Sprintf("(%s)", qs)
 			qParams = append(qParams, fmt.Sprintf("fq=%s:%s", f.Facet, url.QueryEscape(qs)))
 		}
+	}
+	if req.SubjectQuery != "" {
+		qParams = append(qParams, "qt=search")
+		qParams = append(qParams, "defType=lucene")
+		qParams = append(qParams, fmt.Sprintf("q=subject_t:(%s)", url.QueryEscape(req.SubjectQuery)))
 	}
 
 	solrURL := fmt.Sprintf("%s/solr/%s/select?%s", svc.SolrURL, svc.SolrCore, strings.Join(qParams, "&"))

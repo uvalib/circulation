@@ -3,17 +3,26 @@
       <h2>{{name}}</h2>
       <table>
          <tr class="option" v-for="f in sectionFacets(name)" :key="f.facet">
-            <td class="label">{{f.label}}:</td>
-            <td class="data">
-               <span class="selection" @click="showFacetValues(f.facet)">
-                  <span class="any" v-if="anySelected(name,f.facet) == false">
-                     Any
+            <template v-if="f.filterType=='subject'">
+               <td class="label">{{f.label}}:</td>
+               <td class="data">
+                  <input class="subject-entry" v-model="subjectQuery">
+                  <div class="note">Enter one or more subject names separated by AND/OR. Wilidard * is accepted. No entry matches any subject. Example: argent* AND history</div>
+               </td>
+            </template>
+            <template v-else>
+               <td class="label">{{f.label}}:</td>
+               <td class="data">
+                  <span class="selection" @click="showFacetValues(f.facet)">
+                     <span class="any" v-if="anySelected(name,f.facet) == false">
+                        Any
+                     </span>
+                     <template v-else>
+                        {{facetSelections(name,f.facet).join(", ")}}
+                     </template>
                   </span>
-                  <template v-else>
-                     {{facetSelections(name,f.facet).join(", ")}}
-                  </template>
-               </span>
-            </td>
+               </td>
+            </template>
          </tr>
       </table>
    </div>
@@ -21,8 +30,8 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { mapFields } from 'vuex-map-fields'
 export default {
-   components: { },
    props: {
       name: {
          type: String,
@@ -35,6 +44,9 @@ export default {
          facetValues: 'facetValues',
          facetSelections: 'facetSelections'
       }),
+      ...mapFields({
+         subjectQuery: 'subjectQuery',
+      })
    },
    methods: {
       anySelected(name, facet) {
@@ -68,7 +80,16 @@ export default {
          text-align: right;
          width: 175px;
          font-weight: bold;
+         vertical-align: text-top;
       }
+   }
+   .subject-entry {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--uvalib-grey-light);
+      border-radius: 5px;
+      color: var(--uvalib-text);
+      padding: 5px;
    }
    .any  {
       color: #aaa;
@@ -76,6 +97,11 @@ export default {
    }
    span.selection {
       cursor: pointer;
+   }
+   .note {
+      font-size: .8em;
+      font-style: italic;
+      margin: 4px 0 10px 0;
    }
    .edit {
       border: none;

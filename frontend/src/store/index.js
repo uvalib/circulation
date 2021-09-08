@@ -16,6 +16,7 @@ export default createStore({
       timeStart: "",
       timeEnd: "",
       allDay: true,
+      subjectQuery: "",
       page: 0,
       pageSize: 50,
       hits: [],
@@ -80,8 +81,10 @@ export default createStore({
          let out = []
          state.facets.forEach( sect => {
             sect.facets.forEach( f => {
-               if (f.selected.length > 1 || f.selected.length == 1 && f.selected[0] != "Any") {
-                  out.push( {facet: f.facet, values: f.selected})
+               if (f.selected) {
+                  if (f.selected.length > 1 || f.selected.length == 1 && f.selected[0] != "Any") {
+                     out.push( {facet: f.facet, values: f.selected})
+                  }
                }
             })
          })
@@ -174,7 +177,9 @@ export default createStore({
                }
                currSection = {section: f.section, facets: []}
             }
-            f.selected = ["Any"]
+            if (f.filterType == "select") {
+               f.selected = ["Any"]
+            }
             currSection.facets.push(f)
          })
          state.facets.push(currSection)
@@ -219,7 +224,8 @@ export default createStore({
             pagination: {start: ctx.state.page*ctx.state.pageSize, rows: ctx.state.pageSize},
             date: ctx.getters.dateParam,
             time: ctx.getters.timeParam,
-            filter: ctx.getters.selectedFacets
+            filter: ctx.getters.selectedFacets,
+            subject: ctx.state.subjectQuery
          }
          axios.post( `/api/search`, req ).then( response => {
             ctx.commit("clearSearchHits")
