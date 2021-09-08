@@ -16,6 +16,7 @@
          </div>
          <div lass="hits">
             <div class="hit" v-for="(hit,idx) in hits" :key="`hit-${idx}`">
+               <span class="num">{{idx+1}}.</span>
                <table class="fields">
                   <tr v-for="(field,fidx) in hit.fields" :key="`hit-${idx}-field-${fidx}`">
                      <td class="label">{{field.label}}:</td>
@@ -117,6 +118,12 @@ export default {
       }
    }
    .hit {
+      .num {
+         color: #aaa;
+         font-weight: bolder;
+         position: absolute;
+      }
+      text-align: left;
       padding: 10px;
       margin: 10px;
       border: 1px solid var(--uvalib-grey-light);
