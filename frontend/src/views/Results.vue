@@ -5,6 +5,7 @@
          <WaitSpinner message="Searching..." />
       </div>
       <template v-else>
+         <WaitSpinner v-if="loadingMore" message="Loading more results..." :overlay="true"/>
          <div class="toolbar">
             <span class="controls">
                <button @click="refineClicked">Refine Search</button>
@@ -59,6 +60,7 @@ export default {
          page: state => state.page,
          totalHits: state => state.totalHits,
          pageSize: state => state.pageSize,
+         loadingMore: state => state.loadingMore,
       }),
       hasMore() {
          return this.hits.length < this.totalHits
@@ -96,8 +98,6 @@ export default {
          return field.value.join(", ")
       }
    },
-   created() {
-   }
 }
 </script>
 

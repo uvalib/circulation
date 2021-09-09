@@ -53,7 +53,10 @@ div.spinner-overlay {
    width: 100%;
    height: 100%;
    z-index: 1000;
-   background: white;
+   background: rgba(100,100,100,0.3);
+   .spinner {
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);;
+   }
 }
 div.spinner {
    background: white;

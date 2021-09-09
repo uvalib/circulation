@@ -5,6 +5,7 @@ import axios from 'axios'
 export default createStore({
    state: {
       working: false,
+      loadingMore: false,
       fatalError: "",
       message: "",
       facets: [],
@@ -93,6 +94,9 @@ export default createStore({
    },
    mutations: {
       updateField,
+      setLoadingMore(state, flag) {
+         state.loadingMore = flag
+      },
       addSearchHits(state, hitData) {
          state.totalHits = hitData.total
          hitData.hits.forEach( h => state.hits.push(h) )
@@ -205,20 +209,19 @@ export default createStore({
          })
       },
       loadMore(ctx) {
-         ctx.commit("setWorking", true)
          let req = {
             pagination: {start: ctx.state.page*ctx.state.pageSize, rows: ctx.state.pageSize},
             date: ctx.getters.dateParam,
             time: ctx.getters.timeParam,
             filter: ctx.getters.selectedFacets
          }
+         ctx.commit("setLoadingMore", true)
          axios.post( `/api/search`, req ).then( response => {
             ctx.commit("addSearchHits", response.data)
-            ctx.commit("setWorking", false)
-            this.router.push("/results")
+            ctx.commit("setLoadingMore", false)
          }).catch( error => {
             ctx.commit("setMessage", error)
-            ctx.commit("setWorking", false)
+            ctx.commit("setLoadingMore", false)
          })
       },
       search(ctx) {
