@@ -11,8 +11,19 @@
          </div>
          <p class="error">{{queryError}}</p>
          <div class="toolbar">
-            <button class="main reset" @click="resetForm">Reset Form</button>
-            <button class="main generate" @click="search">Search</button>
+            <span class="sort-control">
+               <label for="sort">Sort by:</label>
+               <select class="sort" id="sort" v-model="sort">
+                  <option value="checkout_date%20asc">Checkout Date ASC</option>
+                  <option value="checkout_date%20desc">Checkout Date DESC</option>
+                  <option value="borrower_profile_str%20asc">Borrower Profile ASC</option>
+                  <option value="borrower_profile_str%20desc">Borrower Profile DESC</option>
+               </select>
+            </span>
+            <span class="buttons">
+               <button class="main reset" @click="resetForm">Reset Form</button>
+               <button class="main generate" @click="search">Search</button>
+            </span>
          </div>
       </div>
       <FacetPicker v-if="showPicker" />
@@ -41,7 +52,8 @@ export default {
       ...mapFields({
          working: 'working',
          facets: 'facets',
-         showPicker: 'showPicker'
+         showPicker: 'showPicker',
+         sort: 'sort'
       }),
       ...mapState({
          dateCriteria: state => state.dateCriteria,
@@ -152,6 +164,19 @@ export default {
       padding-top: 25px;
       border-top: 1px solid var(--uvalib-grey-light);
       text-align: center;
+      position: relative;
+      .sort-control {
+         display: inline-block;
+         position: absolute;
+         left: 0;
+         label {
+            font-weight: bold;
+            margin-right: 10px;
+         }
+         select {
+            padding: 5px;
+         }
+      }
       button.main {
          font-size: 1.1em;
          font-weight: 100;

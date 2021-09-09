@@ -32,6 +32,7 @@ type searchRequest struct {
 	TimeQuery    string         `json:"time"`
 	Filters      []filterParam  `json:"filter"`
 	SubjectQuery string         `json:"subject"`
+	SortOrder    string         `json:"sort"`
 }
 
 type hitValue struct {
@@ -61,7 +62,7 @@ func (svc *serviceContext) searchHandler(c *gin.Context) {
 	qParams = append(qParams, fmt.Sprintf("start=%d", req.Pagination.Start))
 	qParams = append(qParams, fmt.Sprintf("rows=%d", req.Pagination.Rows))
 	qParams = append(qParams, "fl=*")
-	qParams = append(qParams, "sort=checkout_date%20asc")
+	qParams = append(qParams, fmt.Sprintf("sort=%s", req.SortOrder))
 
 	if len(req.DateQuery) > 0 {
 		dq := getDateQueryString(req.DateQuery)

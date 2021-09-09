@@ -22,6 +22,7 @@ export default createStore({
       pageSize: 50,
       hits: [],
       totalHits: -1,
+      sort: "checkout_date%20asc"
    },
    getters: {
       getField,
@@ -213,7 +214,8 @@ export default createStore({
             pagination: {start: ctx.state.page*ctx.state.pageSize, rows: ctx.state.pageSize},
             date: ctx.getters.dateParam,
             time: ctx.getters.timeParam,
-            filter: ctx.getters.selectedFacets
+            filter: ctx.getters.selectedFacets,
+            sort: ctx.state.sort
          }
          ctx.commit("setLoadingMore", true)
          axios.post( `/api/search`, req ).then( response => {
@@ -231,7 +233,8 @@ export default createStore({
             date: ctx.getters.dateParam,
             time: ctx.getters.timeParam,
             filter: ctx.getters.selectedFacets,
-            subject: ctx.state.subjectQuery
+            subject: ctx.state.subjectQuery,
+            sort: ctx.state.sort
          }
          axios.post( `/api/search`, req ).then( response => {
             ctx.commit("clearSearchHits")
