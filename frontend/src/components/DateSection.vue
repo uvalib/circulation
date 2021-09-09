@@ -2,10 +2,12 @@
    <div class="section">
       <h2>
          <span>Date / Time</span>
-         <button class="add" @click="addDate">Add Date</button>
       </h2>
       <div class="criteria">
-         <p class="any" v-if="dateCriteria.length == 0">Any date</p>
+         <div class="any" v-if="dateCriteria.length == 0">
+            <span>Any date</span>
+            <button class="add" @click="addDate">Add Date</button>
+         </div>
 
          <div v-for="(dc,idx) in dateCriteria" :key="`date-criteria-${idx}`" class="date-row">
             <select v-if="idx > 0" class="date-item date-op" v-model="dc.op" :aria-label="`boolean operator for date number ${idx+1}`">
@@ -27,17 +29,18 @@
                   <input type="text" v-model="dc.endVal" :aria-label="`end date ${idx+1}`"/>
                </template>
             </span>
-            <button class="date-item del" @click="removeDate(idx)">Remove Criteria</button>
+            <button class="date-item del" @click="removeDate(idx)">Remove Date</button>
+            <button v-if="idx == (dateCriteria.length-1)" class="add" @click="addDate">Add Date</button>
          </div>
       </div>
-      <div class="criteria">
+      <div class="criteria time">
          <span class="date-item time-label">Time:</span>
          <label date-item><input type="radio" name="time-mode" :checked="allDay" @click="setTimeAllDay">All day</label>
          <span class="date-item time-range">
             <label class="date-item"><input type="radio" name="time-mode" :checked="!allDay"  @click="setTimeRange">Range</label>
-            <input type="text" class="date-item" v-model="timeStart" aria-label="start time"/>
+            <input type="text" class="date-item" v-model="timeStart" @keyup="timeChanged" aria-label="start time"/>
             <span class="date-item">-</span>
-            <input type="text" class="date-item" v-model="timeEnd" aria-label="end time"/>
+            <input type="text" class="date-item" v-model="timeEnd" @keyup="timeChanged" aria-label="end time"/>
          </span>
       </div>
       <div class="pad-top date-hint"><b>Accepted date formats</b>: YYYY, YYYY-MM, YYYY-MM-DD</div>
@@ -53,6 +56,14 @@ export default {
       ...mapFields(["timeStart", "timeEnd", "allDay"]),
    },
    methods: {
+      timeChanged() {
+         console.log("rgr"+this.timeStart )
+         if (this.timeStart != "" || this.timeEnd != "") {
+            this.allDay = false
+         } else {
+            this.setTimeAllDay()
+         }
+      },
       addDate( ) {
          this.$store.commit("addDate")
       },
@@ -86,17 +97,30 @@ export default {
       flex-flow: row nowrap;
       justify-content: space-between;
       align-items: center;
-      .add {
-         background-color: var(--uvalib-brand-blue-light);
-         border: 1px solid var(--uvalib-brand-blue-light);
-         color: white;
-         border-radius: 5px;
-         padding: 5px 10px;
-         &:hover {
-            background-color: var(--uvalib-brand-blue-lighter);
-         }
+   }
+    button.add {
+      border-radius: 5px;
+      padding: 5px 10px;
+      font-weight: bold;
+   }
+   button.add {
+      background-color: var(--uvalib-brand-blue-light);
+      border: 1px solid var(--uvalib-brand-blue-light);
+      color: white;
+      &:hover {
+         background-color: var(--uvalib-brand-blue-lighter);
       }
    }
+   button.del {
+      background-color: #b22;
+      border: 1px solid #b22;
+      color: white;
+      font-weight: bold;
+      &:hover {
+         background-color: #d22;
+      }
+   }
+
    .date-hint {
       margin-bottom: 5px;
       color: var(--uvalib-grey);
@@ -106,8 +130,11 @@ export default {
    .pad-top {
       margin-top: 15px;
    }
+   .criteria.time {
+      margin-top: 25px;
+   }
    .criteria {
-      margin-left: 20px;
+      margin: 0 0 10px 20px;
       .date-item {
          margin-right: 10px;
       }

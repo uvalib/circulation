@@ -17,12 +17,20 @@
          <div lass="hits">
             <div class="hit" v-for="(hit,idx) in hits" :key="`hit-${idx}`">
                <span class="num">{{idx+1}}.</span>
-               <table class="fields">
-                  <tr v-for="(field,fidx) in hit.fields" :key="`hit-${idx}-field-${fidx}`">
-                     <td class="label">{{field.label}}:</td>
-                     <td class="data">{{formatData(field)}}</td>
-                  </tr>
-               </table>
+               <span class="data">
+                  <div class="section" v-for="section in hit.sections" :key="section.label">
+                     <template v-if="section.label != 'Checkout Information'">
+                        <div class="section-name">{{section.label}}</div>
+                        <dl class="fields">
+                           <template v-for="(field,fidx) in section.fields" :key="`hit-${idx}-field-${fidx}`">
+                              <dt class="label">{{field.label}}:</dt>
+                              <dd class="data">{{formatData(field)}}</dd>
+                           </template>
+                        </dl>
+                     </template>
+                     <div v-else class="checkout">{{formatCheckoutInfo(section.fields)}}</div>
+                  </div>
+               </span>
             </div>
             <div class="more" v-if="hasMore">
                <button class="more" @click="loadMore">Load More</button>
@@ -57,6 +65,14 @@ export default {
       }
    },
    methods: {
+      formatCheckoutInfo(fields) {
+         let lib =  fields.find( f=>f.label == "Library")
+         let date =  fields.find( f=>f.label == "Date")
+         let time =  fields.find( f=>f.label == "Time")
+         let dateStr = date.value[0]
+         let out = `Checked out from ${lib.value[0]} on ${dateStr.split("T")[0]} at ${time.value[0]}`
+         return out
+      },
       loadMore() {
          this.$store.dispatch("loadMore")
       },
@@ -118,31 +134,50 @@ export default {
       }
    }
    .hit {
-      .num {
-         color: #aaa;
-         font-weight: bolder;
-         position: absolute;
-      }
+      display: flex;
+      flex-flow: row nowrap;
       text-align: left;
       padding: 10px;
       margin: 10px;
       border: 1px solid var(--uvalib-grey-light);
       border-radius: 5px;
       box-shadow: 0 1px 3px rgb(0 0 0 / 6%), 0 1px 2px rgb(0 0 0 / 12%);
-      table {
-         width: 100%;
-         table-layout: auto;
-         border-collapse: collapse;
-         td.label {
-            text-align: right;
-            padding: 5px 8px;
+
+      .num {
+         color: #aaa;
+         font-weight: bolder;
+         display: inline-block;
+         padding: 0 10px;
+      }
+      .data {
+         flex-grow: 1;
+      }
+      .checkout {
+         margin-bottom: 15px;
+         font-weight: bold;
+      }
+      .section-name {
+         border-bottom: 1px solid var(--uvalib-grey-light);
+         padding: 5px;
+         margin: 0;
+         font-size: 1.15em;
+         border-top: 1px solid var(--uvalib-grey-light);
+      }
+      dl.fields {
+         margin-left: 25px;
+         display: inline-grid;
+         grid-template-columns: max-content 2fr;
+         grid-column-gap: 15px;
+         dt {
             font-weight: bold;
-            white-space: nowrap;
-            vertical-align: text-top;
+            text-align: right;
          }
-         td.data {
-            width: 100%;
-            text-align: left;
+         dd {
+            margin: 0 0 10px 0;
+            word-break: break-word;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            hyphens: auto;
          }
       }
    }

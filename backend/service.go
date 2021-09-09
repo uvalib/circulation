@@ -43,6 +43,7 @@ type solrResponse struct {
 type solrMapping struct {
 	SolrField string `json:"field"`
 	Label     string `json:"label"`
+	Section   string `json:"section"`
 }
 
 // ServiceContext contains common data used by all handlers

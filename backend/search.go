@@ -39,8 +39,13 @@ type hitValue struct {
 	Value []string `json:"value"`
 }
 
-type searchHit struct {
+type sectionData struct {
+	Label  string     `json:"label"`
 	Fields []hitValue `json:"fields"`
+}
+
+type searchHit struct {
+	Sections []sectionData `json:"sections"`
 }
 
 func (svc *serviceContext) searchHandler(c *gin.Context) {
@@ -113,15 +118,28 @@ func (svc *serviceContext) searchHandler(c *gin.Context) {
 func (svc *serviceContext) extractHitData(solrHits []solrDocument) *[]searchHit {
 	out := make([]searchHit, 0)
 	for _, doc := range solrHits {
-		hit := searchHit{Fields: make([]hitValue, 0)}
+		hit := searchHit{Sections: make([]sectionData, 0)}
+		currSection := sectionData{Label: ""}
+
+		// Walk through each solr mapping and assign the data to a section and list of fields
 		for _, sm := range svc.SolrMappings {
 			hv := hitValue{Label: sm.Label}
-			solrVal := doc[sm.SolrField]
+
+			// get the raw solr field as an interface, and be sure it is present
+			solrVal, hasKey := doc[sm.SolrField]
+			if hasKey == false {
+				// field not present in response; skip
+				continue
+			}
+
+			// values are strings or array of interface{}. find out which...
 			strVal, ok := solrVal.(string)
 			if ok {
+				// string. just add it to the value (all values are arrays)
 				hv.Value = append(hv.Value, strVal)
-				hit.Fields = append(hit.Fields, hv)
 			} else {
+				// must be an array of interface{}, which is really just an array of string.
+				// type cast and add each value to the values array
 				arrayVal, ok := solrVal.([]interface{})
 				if ok {
 					for _, sv := range arrayVal {
@@ -130,12 +148,30 @@ func (svc *serviceContext) extractHitData(solrHits []solrDocument) *[]searchHit 
 							hv.Value = append(hv.Value, strVal)
 						}
 					}
-					hit.Fields = append(hit.Fields, hv)
 				} else {
-					log.Printf("INFO: %s:%v is not a string or array of strings", sm.SolrField, solrVal)
+					// unsupported value type... skip it
+					log.Printf("WARNING: %s:%v is not a string or array of strings", sm.SolrField, solrVal)
+					continue
 				}
 			}
+
+			// at this point hv contains a single field label and values. see if it goes in this section or a new one
+			// (sections in the mapping are in order and contiguous)
+			if currSection.Label != sm.Section {
+				if currSection.Label != "" {
+					// prior section is now complete. add it to the hit
+					hit.Sections = append(hit.Sections, currSection)
+				}
+
+				// reset current section to the newly found one
+				currSection = sectionData{Label: sm.Section, Fields: make([]hitValue, 0)}
+			}
+
+			// add the fields to the current section
+			currSection.Fields = append(currSection.Fields, hv)
 		}
+		// add the last section to the hit, then add the hit to the output
+		hit.Sections = append(hit.Sections, currSection)
 		out = append(out, hit)
 	}
 	return &out

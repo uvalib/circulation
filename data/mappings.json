@@ -1,29 +1,122 @@
-[{
-   "field": "callnumber_a",
-   "label": "Call Number"
-},
-{
-   "field": "checkout_date",
-   "label": "Checkout Date"
-},
-{
-   "field": "checkout_time_a",
-   "label": "Checkout Time"
-},
-{
-   "field": "checkout_library_a",
-   "label": "Checkout Library"
-},
-{
-   "field": "borrower_profile_str",
-   "label": "Borrower Profile"
-},
-{
-   "field": "subject_main_a",
-   "label": "Primary Subject"
-},
-{
-   "field": "subject_str",
-   "label": "Subject"
-}
+[
+   {
+      "field": "checkout_library_str",
+      "label": "Library",
+      "section": "Checkout Information"
+   },
+   {
+      "field": "checkout_date",
+      "label": "Date",
+      "section": "Checkout Information"
+   },
+   {
+      "field": "checkout_time_str",
+      "label": "Time",
+      "section": "Checkout Information"
+   },
+   {
+      "field": "organization_name_str",
+      "label": "Organizationr",
+      "section": "User Information"
+   },
+   {
+      "field": "school_str",
+      "label": "School",
+      "section": "User Information"
+   },
+   {
+      "field": "department_str",
+      "label": "Department",
+      "section": "User Information"
+   },
+   {
+      "field": "user_role_str",
+      "label": "Role",
+      "section": "User Information"
+   },
+   {
+      "field": "borrower_profile_str",
+      "label": "Borrower Profile",
+      "section": "User Information"
+   },
+   {
+      "field": "is_degree_seeking_str",
+      "label": "Degree Seeking",
+      "section": "User Information"
+   },
+   {
+      "field": "primary_academic_program_str",
+      "label": "Academic Program",
+      "section": "User Information"
+   },
+   {
+      "field": "job_family_group_str",
+      "label": "Job Family",
+      "section": "User Information"
+   },
+   {
+      "field": "job_title_str",
+      "label": "Faculty Type",
+      "section": "User Information"
+   },
+   {
+      "field": "user_library_str",
+      "label": "Library",
+      "section": "User Information"
+   },
+   {
+      "field": "callnumber_str",
+      "label": "Call Number",
+      "section": "Item Information"
+   },
+   {
+      "field": "call_number_narrow_f",
+      "label": "Primary Subject",
+      "section": "Item Information"
+   },
+   {
+      "field": "subject_str",
+      "label": "Subjects",
+      "section": "Item Information"
+   },
+   {
+      "field": "item_class_scheme_str",
+      "label": "Class Scheme",
+      "section": "Item Information"
+   },
+   {
+      "field": "item_type_str",
+      "label": "Type",
+      "section": "Item Information"
+   },
+   {
+      "field": "format_str",
+      "label": "Format",
+      "section": "Item Information"
+   },
+   {
+      "field": "pub_year_str",
+      "label": "Publication Year",
+      "section": "Item Information"
+   },
+   {
+      "field": "language_str",
+      "label": "Language",
+      "section": "Item Information"
+   },
+   {
+      "field": "item_library_str",
+      "label": "Library",
+      "section": "Item Information"
+   },
+   {
+      "field": "home_loc_str",
+      "label": "Location",
+      "section": "Item Information"
+   },
+   {
+      "field": "reserve_str",
+      "label": "Reserve Desk",
+      "section": "Item Information"
+   }
 ]

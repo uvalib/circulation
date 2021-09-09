@@ -110,13 +110,16 @@ export default createStore({
       clearAll(state) {
          state.facets.forEach( sf => {
             sf.facets.forEach( f => {
-               f.selected.splice(0, f.selected.length)
-               f.selected.push("Any")
+               if (f.selected) {
+                  f.selected.splice(0, f.selected.length)
+                  f.selected.push("Any")
+               }
             })
          })
          state.timeStart = ""
          state.timeEnd = ""
          state.allDay = true
+         state.subjectQuery = ""
          state.dateCriteria.splice(0, state.dateCriteria.length)
       },
       toggleFacetValue(state, val) {
