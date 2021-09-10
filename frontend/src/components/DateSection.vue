@@ -57,7 +57,6 @@ export default {
    },
    methods: {
       timeChanged() {
-         console.log("rgr"+this.timeStart )
          if (this.timeStart != "" || this.timeEnd != "") {
             this.allDay = false
          } else {

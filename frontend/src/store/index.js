@@ -5,14 +5,13 @@ import axios from 'axios'
 export default createStore({
    state: {
       working: false,
-      loadingMore: false,
       fatalError: "",
       message: "",
       facets: [],
       showPicker: false,
-      targetSection: "",
-      targetFacetID: "",
-      targetFacet: null,
+      targetSection: "",   // set whhen picker is in use
+      targetFacetID: "",   // set whhen picker is in use
+      targetFacet: null,   // set whhen picker is in use
       dateCriteria: [],
       timeStart: "",
       timeEnd: "",
@@ -91,26 +90,28 @@ export default createStore({
             })
          })
          return out
+      },
+      sortOptions(state) {
+         let out = []
+         state.facets.forEach( sect => {
+            sect.facets.forEach( f=> {
+               if (f.sort == true) {
+                  out.push({value: `${f.facet}%20asc`, label: `${f.label} ASC`})
+                  out.push({value: `${f.facet}%20desc`, label: `${f.label} DESC`})
+               }
+            })
+         })
+         return out
       }
    },
    mutations: {
       updateField,
-      setLoadingMore(state, flag) {
-         state.loadingMore = flag
+      addDate(state) {
+         state.dateCriteria.push( ({ op: "AND", value: "", comparison: "EQUAL", endVal: "" }))
       },
       addSearchHits(state, hitData) {
          state.totalHits = hitData.total
          hitData.hits.forEach( h => state.hits.push(h) )
-      },
-      clearSearchHits(state) {
-         state.totalHits = -1
-         state.hits.splice(0, state.hits.length)
-      },
-      addDate(state) {
-         state.dateCriteria.push( ({ op: "AND", value: "", comparison: "EQUAL", endVal: "" }))
-      },
-      removeDate(state, idx) {
-         state.dateCriteria.splice(idx, 1)
       },
       clearAll(state) {
          state.facets.forEach( sf => {
@@ -126,6 +127,71 @@ export default createStore({
          state.allDay = true
          state.subjectQuery = ""
          state.dateCriteria.splice(0, state.dateCriteria.length)
+         state.sort = "checkout_date%20asc"
+      },
+      clearAllFacetSelections(state) {
+         if (!state.targetFacet) return
+
+         state.targetFacet.selected.splice(0, state.targetFacet.selected.length)
+         state.targetFacet.selected.push("Any")
+      },
+      clearMessage(state) {
+         state.message = ""
+      },
+      clearSearchHits(state) {
+         state.totalHits = -1
+         state.hits.splice(0, state.hits.length)
+      },
+      closeFacetPicker(state) {
+         state.targetFacetID = ""
+         state.targetSection = ""
+         state.targetFacet = null
+         state.showPicker = false
+         const body = document.body
+         body.style.height = ''
+         body.style.overflowY = ''
+      },
+      nextPage(state) {
+         state.page++
+      },
+      removeDate(state, idx) {
+         state.dateCriteria.splice(idx, 1)
+      },
+      setFatalError(state, err) {
+         state.fatalError = err
+      },
+      setMessage(state, m) {
+         state.message = m
+      },
+      setFacets(state, data) {
+         state.facets.splice(0, state.facets.length)
+         let currSection = {section: "", facets: []}
+         data.forEach( f => {
+            if (f.section != currSection.section) {
+               if (currSection.section != "") {
+                  state.facets.push(currSection)
+               }
+               currSection = {section: f.section, facets: []}
+            }
+            if (f.filterType == "select") {
+               f.selected = ["Any"]
+            }
+            currSection.facets.push(f)
+         })
+         state.facets.push(currSection)
+      },
+      setWorking(state, flag) {
+         state.working = flag
+      },
+      showFacetPicker(state, {section, facet}) {
+         state.targetFacetID = facet
+         state.targetSection = section
+         let sect = state.facets.find( sf => sf.section == state.targetSection)
+         state.targetFacet = sect.facets.find( f => f.facet == state.targetFacetID)
+         state.showPicker = true
+         const body = document.body
+         body.style.height = '100vh'
+         body.style.overflowY = 'hidden'
       },
       toggleFacetValue(state, val) {
          if (!state.targetFacet) return
@@ -144,103 +210,52 @@ export default createStore({
             }
          }
       },
-      clearAllFacetSelections(state) {
-         if (!state.targetFacet) return
-
-         state.targetFacet.selected.splice(0, state.targetFacet.selected.length)
-         state.targetFacet.selected.push("Any")
-      },
-      closeFacetPicker(state) {
-         state.targetFacetID = ""
-         state.targetSection = ""
-         state.targetFacet = null
-         state.showPicker = false
-         const body = document.body
-         body.style.height = ''
-         body.style.overflowY = ''
-      },
-      showFacetPicker(state, {section, facet}) {
-         state.targetFacetID = facet
-         state.targetSection = section
-         let sect = state.facets.find( sf => sf.section == state.targetSection)
-         state.targetFacet = sect.facets.find( f => f.facet == state.targetFacetID)
-         state.showPicker = true
-         const body = document.body
-         body.style.height = '100vh'
-         body.style.overflowY = 'hidden'
-      },
-      setWorking(state, flag) {
-         state.working = flag
-      },
-      setFatalError(state, err) {
-         state.fatalError = err
-      },
-      setSearchFacets(state, data) {
-         state.facets.splice(0, state.facets.length)
-         let currSection = {section: "", facets: []}
-         data.forEach( f => {
-            if (f.section != currSection.section) {
-               if (currSection.section != "") {
-                  state.facets.push(currSection)
-               }
-               currSection = {section: f.section, facets: []}
-            }
-            if (f.filterType == "select") {
-               f.selected = ["Any"]
-            }
-            currSection.facets.push(f)
-         })
-         state.facets.push(currSection)
-      },
-      clearMessage(state) {
-         state.message = ""
-      },
-      setMessage(state, m) {
-         state.message = m
-      },
    },
    actions: {
-      getSearchFacets(ctx) {
+      getFacets(ctx) {
          axios.get( `/api/facets` ).then( response => {
-            ctx.commit("setSearchFacets", response.data)
+            ctx.commit("setFacets", response.data)
             ctx.commit("setWorking", false)
          }).catch ( error => {
             ctx.commit("setFatalError", error)
             ctx.commit("setWorking", false)
          })
       },
-      loadMore(ctx) {
-         let req = {
-            pagination: {start: ctx.state.page*ctx.state.pageSize, rows: ctx.state.pageSize},
-            date: ctx.getters.dateParam,
-            time: ctx.getters.timeParam,
-            filter: ctx.getters.selectedFacets,
-            sort: ctx.state.sort
-         }
-         ctx.commit("setLoadingMore", true)
-         axios.post( `/api/search`, req ).then( response => {
-            ctx.commit("addSearchHits", response.data)
-            ctx.commit("setLoadingMore", false)
-         }).catch( error => {
-            ctx.commit("setMessage", error)
-            ctx.commit("setLoadingMore", false)
-         })
-      },
-      search(ctx) {
+      search(ctx, mode) {
          ctx.commit("setWorking", true)
          let req = {
-            pagination: {start: ctx.state.page*ctx.state.pageSize, rows: ctx.state.pageSize},
             date: ctx.getters.dateParam,
             time: ctx.getters.timeParam,
             filter: ctx.getters.selectedFacets,
             subject: ctx.state.subjectQuery,
-            sort: ctx.state.sort
+            sort: ctx.state.sort,
+            pagination: {start: 0, rows: ctx.state.pageSize}
          }
-         axios.post( `/api/search`, req ).then( response => {
-            ctx.commit("clearSearchHits")
-            ctx.commit("addSearchHits", response.data)
+         let  url = "/api/search"
+         if (mode == "export") {
+            url += "?export=csv"
+            req.pagination =  {start: 0, rows: ctx.state.totalHits}
+         } else if (mode == "more" ){
+            ctx.commit("nextPage")
+            req.pagination =  {start: ctx.state.page*ctx.state.pageSize, rows: ctx.state.pageSize}
+         }
+         axios.post( url, req ).then( response => {
+            if ( mode == "export") {
+               const fileURL = window.URL.createObjectURL(new Blob([response.data]));
+               const fileLink = document.createElement('a');
+               fileLink.href = fileURL;
+               fileLink.setAttribute('download', response.headers["content-disposition"].split("filename=")[1])
+               document.body.appendChild(fileLink);
+               fileLink.click();
+               window.URL.revokeObjectURL(fileURL);
+            } else {
+               if (mode == "new") {
+                  ctx.commit("clearSearchHits")
+               }
+               ctx.commit("addSearchHits", response.data)
+               this.router.push("/results")
+            }
             ctx.commit("setWorking", false)
-            this.router.push("/results")
          }).catch( error => {
             ctx.commit("setMessage", error)
             ctx.commit("setWorking", false)

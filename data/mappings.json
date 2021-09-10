@@ -1,17 +1,17 @@
 [
    {
       "field": "checkout_library_str",
-      "label": "Library",
+      "label": "Checkout Library",
       "section": "Checkout Information"
    },
    {
       "field": "checkout_date",
-      "label": "Date",
+      "label": "Checkout Date",
       "section": "Checkout Information"
    },
    {
       "field": "checkout_time_str",
-      "label": "Time",
+      "label": "Checkout Time",
       "section": "Checkout Information"
    },
    {
@@ -61,7 +61,7 @@
    },
    {
       "field": "user_library_str",
-      "label": "Library",
+      "label": "User Library",
       "section": "User Information"
    },
    {
@@ -106,12 +106,12 @@
    },
    {
       "field": "item_library_str",
-      "label": "Library",
+      "label": "Item Library",
       "section": "Item Information"
    },
    {
       "field": "home_loc_str",
-      "label": "Location",
+      "label": "Item Location",
       "section": "Item Information"
    },
    {

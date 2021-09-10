@@ -14,10 +14,9 @@
             <span class="sort-control">
                <label for="sort">Sort by:</label>
                <select class="sort" id="sort" v-model="sort">
-                  <option value="checkout_date%20asc">Checkout Date ASC</option>
-                  <option value="checkout_date%20desc">Checkout Date DESC</option>
-                  <option value="borrower_profile_str%20asc">Borrower Profile ASC</option>
-                  <option value="borrower_profile_str%20desc">Borrower Profile DESC</option>
+                  <option v-for="opt in sortOptions" :value="opt.value" :key="opt.value">
+                     {{opt.label}}
+                  </option>
                </select>
             </span>
             <span class="buttons">
@@ -36,7 +35,7 @@ import FacetSection from "@/components/FacetSection"
 import WaitSpinner from "@/components/WaitSpinner"
 import FacetPicker from "@/components/FacetPicker"
 import { mapFields } from 'vuex-map-fields'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 export default {
    name: "Home",
    components: {
@@ -61,6 +60,9 @@ export default {
          timeStart: state => state.timeStart,
          timeEnd: state => state.timeEnd,
       }),
+      ...mapGetters({
+         sortOptions: 'sortOptions',
+      })
    },
    methods: {
       search() {
@@ -82,13 +84,13 @@ export default {
 
          if ( this.allDay == false) {
             if ( !this.validTime(this.timeStart) || !this.validTime(this.timeEnd)) {
-               this.queryError = "All times must be in the form HH:MM:SS with a 24 hour clock"
+               this.queryError = "All times must be in the form HH:MM using a 24 hour clock"
                return
             }
          }
 
          this.waitMessage = "Searching..."
-         this.$store.dispatch("search")
+         this.$store.dispatch("search", "new")
       },
       validTime(timeStr) {
          let parts = timeStr.split(":")
@@ -97,14 +99,18 @@ export default {
          }
          let bad = false
          parts.forEach( (p,idx) => {
-            let timeNum = parseInt(p, 10)
-            if (idx == 0) {
-               if ( timeNum <0 || timeNum > 23 ) {
-                  bad = true
-               }
+            if (p.length != 2) {
+               bad = true
             } else {
-               if ( timeNum <0 || timeNum > 59 ) {
-                  bad = true
+               let timeNum = parseInt(p, 10)
+               if (idx == 0) {
+                  if ( timeNum <0 || timeNum > 23 ) {
+                     bad = true
+                  }
+               } else {
+                  if ( timeNum <0 || timeNum > 59 ) {
+                     bad = true
+                  }
                }
             }
          })
@@ -137,7 +143,7 @@ export default {
    created() {
       if (!this.$route.query.refine) {
          this.working = true
-         this.$store.dispatch("getSearchFacets")
+         this.$store.dispatch("getFacets")
       }
    }
 }

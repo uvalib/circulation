@@ -1,15 +1,16 @@
 <template>
    <div class="results">
       <h1>Search Results</h1>
-      <div class="work" v-if="working" >
+      <div class="work" v-if="working && hits.length == 0" >
          <WaitSpinner message="Searching..." />
       </div>
       <template v-else>
-         <WaitSpinner v-if="loadingMore" message="Loading more results..." :overlay="true"/>
+         <WaitSpinner  v-if="working && hits.length > 0" :message="message" :overlay="true"/>
          <div class="toolbar">
             <span class="controls">
                <button @click="refineClicked">Refine Search</button>
                <button @click="newClicked">New Search</button>
+               <button @click="csvClicked">Export CSV</button>
             </span>
             <span class="info">
                Showing {{hits.length}} of {{totalHits}} results
@@ -51,8 +52,9 @@ export default {
    },
    data() {
       return {
+         waitMessage: "",
       }
-    },
+   },
    computed: {
       ...mapState({
          working: state => state.working,
@@ -60,23 +62,27 @@ export default {
          page: state => state.page,
          totalHits: state => state.totalHits,
          pageSize: state => state.pageSize,
-         loadingMore: state => state.loadingMore,
       }),
       hasMore() {
          return this.hits.length < this.totalHits
       }
    },
    methods: {
+      csvClicked() {
+         this.message = "Generating CSV..."
+         this.$store.dispatch("search", "export")
+      },
       formatCheckoutInfo(fields) {
-         let lib =  fields.find( f=>f.label == "Library")
-         let date =  fields.find( f=>f.label == "Date")
-         let time =  fields.find( f=>f.label == "Time")
+         let lib =  fields.find( f=>f.label == "Checkout Library")
+         let date =  fields.find( f=>f.label == "Checkout Date")
+         let time =  fields.find( f=>f.label == "Checkout Time")
          let dateStr = date.value[0]
          let out = `Checked out from ${lib.value[0]} on ${dateStr.split("T")[0]} at ${time.value[0]}`
          return out
       },
       loadMore() {
-         this.$store.dispatch("loadMore")
+         this.message = "Loading more results..."
+         this.$store.dispatch("search", "more")
       },
       refineClicked() {
          this.$router.push("/?refine=true")
@@ -128,12 +134,14 @@ export default {
          color: white;
          border-radius: 5px;
          padding: 5px 10px;
+         font-weight: bold;
          &:hover {
             background-color: var(--uvalib-brand-blue-lighter);
          }
       }
    }
    .hit {
+      font-size: 0.9em;
       display: flex;
       flex-flow: row nowrap;
       text-align: left;

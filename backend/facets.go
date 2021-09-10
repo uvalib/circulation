@@ -16,28 +16,29 @@ type facetInfo struct {
 	FilterType string   `json:"filterType"` // select, date, subject
 	Facet      string   `json:"facet"`
 	Values     []string `json:"values,omitempty"`
+	Sort       bool     `json:"sort"`
 }
 
 func (svc *serviceContext) getFacets(c *gin.Context) {
 	log.Printf("INFO: get facets")
 	out := make([]facetInfo, 0)
 	facetNames := []facetInfo{
-		{Label: "Date", Facet: "checkout_date_range", FilterType: "date", Section: "Date"},
+		{Label: "Checkout Date", Facet: "checkout_date", FilterType: "date", Section: "Date", Sort: true},
 
 		// org
-		{Label: "School", Facet: "school_a", FilterType: "select", Section: "Organization"},
-		{Label: "Department", Facet: "department_a", FilterType: "select", Section: "Organization"},
+		{Label: "School", Facet: "school_a", FilterType: "select", Section: "Organization", Sort: true},
+		{Label: "Department", Facet: "department_a", FilterType: "select", Section: "Organization", Sort: true},
 
 		// user
-		{Label: "User Role", Facet: "user_role_a", FilterType: "select", Section: "User"},
-		{Label: "Borrower Profile", Facet: "borrower_profile_a", FilterType: "select", Section: "User"},
+		{Label: "User Role", Facet: "user_role_a", FilterType: "select", Section: "User", Sort: true},
+		{Label: "Borrower Profile", Facet: "borrower_profile_a", FilterType: "select", Section: "User", Sort: true},
 		{Label: "Faculty Type", Facet: "job_title_a", FilterType: "select", Section: "User"},
 		{Label: "Degree Seeking", Facet: "is_degree_seeking_a", FilterType: "select", Section: "User"},
 		{Label: "Degree Level", Facet: "plan_degree_a", FilterType: "select", Section: "User"},
 		// student appointment not populated
 
 		// location
-		{Label: "Station Library", Facet: "checkout_library_a", FilterType: "select", Section: "Location"},
+		{Label: "Station Library", Facet: "checkout_library_a", FilterType: "select", Section: "Location", Sort: true},
 		{Label: "Item Library", Facet: "item_library_a", FilterType: "select", Section: "Location"},
 		{Label: "Item Location", Facet: "home_loc_a", FilterType: "select", Section: "Location"},
 		{Label: "Reserve Desk", Facet: "reserve_a", FilterType: "select", Section: "Location"},

@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bytes"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -50,7 +53,13 @@ type searchHit struct {
 }
 
 func (svc *serviceContext) searchHandler(c *gin.Context) {
-	log.Printf("INFO: call to search solr received")
+	export := c.Query("export")
+	if export != "" {
+		log.Printf("INFO: export CSV request received")
+	} else {
+		log.Printf("INFO: request to search solr received")
+	}
+
 	var req searchRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
@@ -106,14 +115,62 @@ func (svc *serviceContext) searchHandler(c *gin.Context) {
 	}
 
 	log.Printf("INFO: %d total hits for solr query", respJSON.Response.NumFound)
-	var out struct {
-		Total int          `json:"total"`
-		Hits  *[]searchHit `json:"hits"`
-	}
-	out.Total = respJSON.Response.NumFound
-	out.Hits = svc.extractHitData(respJSON.Response.Docs)
+	if export != "" {
+		csvBuff := svc.generateCSVExport(respJSON.Response.Docs)
+		c.Header("Content-Description", "File Transfer")
+		fileName := fmt.Sprintf("circ-report-%s.csv", time.Now().Format("2006-01-02"))
+		c.Header("Content-Disposition", "attachment; filename="+fileName)
+		c.Data(http.StatusOK, "text/csv", csvBuff.Bytes())
+	} else {
+		var out struct {
+			Total int          `json:"total"`
+			Hits  *[]searchHit `json:"hits"`
+		}
+		out.Total = respJSON.Response.NumFound
+		out.Hits = svc.extractHitData(respJSON.Response.Docs)
 
-	c.JSON(http.StatusOK, out)
+		c.JSON(http.StatusOK, out)
+	}
+}
+
+func (svc *serviceContext) generateCSVExport(solrHits []solrDocument) *bytes.Buffer {
+	out := new(bytes.Buffer)
+	csvWriter := csv.NewWriter(out)
+
+	// write first row with columns names from mappings file
+	hdr := make([]string, 0)
+	for _, sm := range svc.SolrMappings {
+		hdr = append(hdr, sm.Label)
+	}
+	csvWriter.Write(hdr)
+
+	// now walk the results docs and pull the fields listed in the mapping into a row
+	for _, doc := range solrHits {
+		row := make([]string, 0)
+		for _, sm := range svc.SolrMappings {
+			// get the raw solr field as an interface, and be sure it is present
+			solrVal, hasKey := doc[sm.SolrField]
+			if hasKey == false {
+				// field not present, add a empty string to row to keep it in sync with columns
+				row = append(row, "")
+				continue
+			}
+
+			// values are strings or array of interface{}. find out which...
+			val, err := convertSolrValue(sm.SolrField, solrVal)
+			if err != nil {
+				log.Printf("WARNING: %s", err.Error())
+				row = append(row, "")
+				continue
+			}
+
+			row = append(row, strings.Join(val, "; "))
+		}
+		csvWriter.Write(row)
+	}
+
+	csvWriter.Flush()
+	return out
 }
 
 func (svc *serviceContext) extractHitData(solrHits []solrDocument) *[]searchHit {
@@ -134,27 +191,12 @@ func (svc *serviceContext) extractHitData(solrHits []solrDocument) *[]searchHit 
 			}
 
 			// values are strings or array of interface{}. find out which...
-			strVal, ok := solrVal.(string)
-			if ok {
-				// string. just add it to the value (all values are arrays)
-				hv.Value = append(hv.Value, strVal)
-			} else {
-				// must be an array of interface{}, which is really just an array of string.
-				// type cast and add each value to the values array
-				arrayVal, ok := solrVal.([]interface{})
-				if ok {
-					for _, sv := range arrayVal {
-						strVal, ok := sv.(string)
-						if ok {
-							hv.Value = append(hv.Value, strVal)
-						}
-					}
-				} else {
-					// unsupported value type... skip it
-					log.Printf("WARNING: %s:%v is not a string or array of strings", sm.SolrField, solrVal)
-					continue
-				}
+			val, err := convertSolrValue(sm.SolrField, solrVal)
+			if err != nil {
+				log.Printf("WARNING: %s", err.Error())
+				continue
 			}
+			hv.Value = val
 
 			// at this point hv contains a single field label and values. see if it goes in this section or a new one
 			// (sections in the mapping are in order and contiguous)
@@ -176,6 +218,30 @@ func (svc *serviceContext) extractHitData(solrHits []solrDocument) *[]searchHit 
 		out = append(out, hit)
 	}
 	return &out
+}
+
+func convertSolrValue(field string, solrVal interface{}) ([]string, error) {
+	out := make([]string, 0)
+	strVal, ok := solrVal.(string)
+	if ok {
+		// string. just add it to the value (all values are arrays)
+		out = append(out, strVal)
+	} else {
+		// must be an array of interface{}, which is really just an array of string.
+		// type cast and add each value to the values array
+		arrayVal, ok := solrVal.([]interface{})
+		if ok {
+			for _, sv := range arrayVal {
+				strVal, ok := sv.(string)
+				if ok {
+					out = append(out, strVal)
+				}
+			}
+		} else {
+			return nil, fmt.Errorf("%s:%v(%T) is not a string or array of strings", field, solrVal, solrVal)
+		}
+	}
+	return out, nil
 }
 
 func getDateQueryString(dateQ []dateParam) string {
