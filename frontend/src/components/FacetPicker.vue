@@ -10,6 +10,7 @@
             </div>
          </div>
          <div class="toolbar">
+            <button class="ok right-pad" @click="selectAll">Select All</button>
             <button class="ok right-pad" @click="clearAll">Clear All</button>
             <button class="ok" @click="closePicker">OK</button>
          </div>
@@ -38,6 +39,9 @@ export default {
       },
       clearAll() {
          this.$store.commit("clearAllFacetSelections")
+      },
+      selectAll() {
+         this.$store.commit("selectAllFacetSelections")
       },
       valueToggled(val) {
          this.$store.commit("toggleFacetValue", val)

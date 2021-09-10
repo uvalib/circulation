@@ -157,6 +157,11 @@ export default createStore({
       removeDate(state, idx) {
          state.dateCriteria.splice(idx, 1)
       },
+      selectAllFacetSelections(state) {
+         if (!state.targetFacet) return
+         state.targetFacet.selected.splice(0, state.targetFacet.selected.length)
+         state.targetFacet.values.forEach( v=> state.targetFacet.selected.push(v) )
+      },
       setFatalError(state, err) {
          state.fatalError = err
       },

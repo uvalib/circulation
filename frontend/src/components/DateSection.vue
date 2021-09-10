@@ -5,6 +5,7 @@
       </h2>
       <div class="criteria">
          <div class="any" v-if="dateCriteria.length == 0">
+             <span class="date-item time-label">Date:</span>
             <span>Any date</span>
             <button class="add" @click="addDate">Add Date</button>
          </div>
@@ -32,19 +33,21 @@
             <button class="date-item del" @click="removeDate(idx)">Remove Date</button>
             <button v-if="idx == (dateCriteria.length-1)" class="add" @click="addDate">Add Date</button>
          </div>
+         <div class="pad-top date-hint"><b>Accepted date formats</b>: YYYY, YYYY-MM, YYYY-MM-DD</div>
       </div>
       <div class="criteria time">
          <span class="date-item time-label">Time:</span>
-         <label date-item><input type="radio" name="time-mode" :checked="allDay" @click="setTimeAllDay">All day</label>
+         <label date-item><input type="radio" name="time-mode" class="time-mode" :checked="allDay" @click="setTimeAllDay">All day</label>
          <span class="date-item time-range">
-            <label class="date-item"><input type="radio" name="time-mode" :checked="!allDay"  @click="setTimeRange">Range</label>
+            <label class="date-item"><input type="radio" name="time-mode"  class="time-mode" :checked="!allDay"  @click="setTimeRange">Time Range</label>
             <input type="text" class="date-item" v-model="timeStart" @keyup="timeChanged" aria-label="start time"/>
             <span class="date-item">-</span>
             <input type="text" class="date-item" v-model="timeEnd" @keyup="timeChanged" aria-label="end time"/>
          </span>
+         <div class="pad-top date-hint"><b>Accepted time format</b>: HH:MM (24hr)</div>
       </div>
-      <div class="pad-top date-hint"><b>Accepted date formats</b>: YYYY, YYYY-MM, YYYY-MM-DD</div>
-      <div class="date-hint"><b>Accepted time format</b>: HH:MM (24hr)</div>
+
+
    </div>
 </template>
 
@@ -119,7 +122,6 @@ export default {
          background-color: #d22;
       }
    }
-
    .date-hint {
       margin-bottom: 5px;
       color: var(--uvalib-grey);
@@ -130,7 +132,9 @@ export default {
       margin-top: 15px;
    }
    .criteria.time {
-      margin-top: 25px;
+      margin-top: 15px;
+      border-top: 1px solid var(--uvalib-grey-light);
+      padding-top: 20px;
    }
    .criteria {
       margin: 0 0 10px 20px;
@@ -152,10 +156,20 @@ export default {
       }
       .time-label {
          margin-right: 25px;
+         font-weight: bold;
+         width: 75px;
+         text-align: right;
+         display: inline-block;
       }
       .time-range {
          display: inline-block;
          margin-left: 30px;
+      }
+      input.time-mode {
+         padding: 5px 0;
+         margin: 0px 10px 0px 0;
+         width: 15px;
+         height: 15px;
       }
       .date-row {
          margin-bottom: 10px;
