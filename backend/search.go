@@ -53,17 +53,18 @@ type searchHit struct {
 }
 
 func (svc *serviceContext) searchHandler(c *gin.Context) {
+	user := c.GetString("user")
 	export := c.Query("export")
 	if export != "" {
-		log.Printf("INFO: export CSV request received")
+		log.Printf("INFO: user %s export CSV request received", user)
 	} else {
-		log.Printf("INFO: request to search solr received")
+		log.Printf("INFO: user %s request to search solr received", user)
 	}
 
 	var req searchRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		log.Printf("ERROR: unable to parse search payload: %s", err.Error())
+		log.Printf("ERROR: user %s unable to parse search payload: %s", user, err.Error())
 		c.String(http.StatusBadRequest, "invalid search request: %s", err.Error())
 		return
 	}
@@ -101,7 +102,7 @@ func (svc *serviceContext) searchHandler(c *gin.Context) {
 	solrURL := fmt.Sprintf("%s/solr/%s/select?%s", svc.SolrURL, svc.SolrCore, strings.Join(qParams, "&"))
 	resp, err := svc.getAPIResponse(solrURL)
 	if err != nil {
-		log.Printf("ERROR: solr search query failed: %s", err.Error())
+		log.Printf("ERROR: user %s solr search query failed: %s", user, err.Error())
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -109,12 +110,12 @@ func (svc *serviceContext) searchHandler(c *gin.Context) {
 	var respJSON solrResponse
 	err = json.Unmarshal(resp, &respJSON)
 	if err != nil {
-		log.Printf("ERROR: unable to parse solr response: %s", err.Error())
+		log.Printf("ERROR: user %s unable to parse solr response: %s", user, err.Error())
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	log.Printf("INFO: %d total hits for solr query", respJSON.Response.NumFound)
+	log.Printf("INFO: user %s gets %d total hits for solr query", user, respJSON.Response.NumFound)
 	if export != "" {
 		csvBuff := svc.generateCSVExport(respJSON.Response.Docs)
 		c.Header("Content-Description", "File Transfer")

@@ -29,8 +29,8 @@ func main() {
 	router.GET("/healthcheck", svc.healthCheck)
 	api := router.Group("/api")
 	{
-		api.GET("/facets", svc.getFacets)
-		api.POST("/search", svc.searchHandler)
+		api.GET("/facets", svc.userMiddleware, svc.getFacets)
+		api.POST("/search", svc.userMiddleware, svc.searchHandler)
 	}
 
 	// Note: in dev mode, this is never actually used. The front end is served

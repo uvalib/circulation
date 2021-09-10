@@ -20,7 +20,8 @@ type facetInfo struct {
 }
 
 func (svc *serviceContext) getFacets(c *gin.Context) {
-	log.Printf("INFO: get facets")
+	user := c.GetString("user")
+	log.Printf("INFO: user %s get facets request", user)
 	out := make([]facetInfo, 0)
 	facetNames := []facetInfo{
 		{Label: "Checkout Date", Facet: "checkout_date", FilterType: "date", Section: "Date", Sort: true},
@@ -55,7 +56,7 @@ func (svc *serviceContext) getFacets(c *gin.Context) {
 
 	for _, fi := range facetNames {
 		if fi.FilterType == "select" {
-			log.Printf("INFO: get facet values for %s", fi.Facet)
+			log.Printf("INFO: user %s get facet values for %s", user, fi.Facet)
 			qParams := make([]string, 0)
 			qParams = append(qParams, fmt.Sprintf("facet.field=%s", fi.Facet))
 			qParams = append(qParams, "facet=on")
@@ -68,7 +69,7 @@ func (svc *serviceContext) getFacets(c *gin.Context) {
 			solrURL := fmt.Sprintf("%s/solr/%s/select?%s", svc.SolrURL, svc.SolrCore, strings.Join(qParams, "&"))
 			resp, err := svc.getAPIResponse(solrURL)
 			if err != nil {
-				log.Printf("ERROR: solr query failed: %s", err.Error())
+				log.Printf("ERROR: user %s solr query failed: %s", user, err.Error())
 				c.String(http.StatusInternalServerError, err.Error())
 				return
 			}
@@ -76,7 +77,7 @@ func (svc *serviceContext) getFacets(c *gin.Context) {
 			var respJSON solrResponseFacets
 			err = json.Unmarshal(resp, &respJSON)
 			if err != nil {
-				log.Printf("ERROR: unable to parse solr response: %s", err.Error())
+				log.Printf("ERROR: user %s unable to parse solr response: %s", user, err.Error())
 				c.String(http.StatusInternalServerError, err.Error())
 				return
 
