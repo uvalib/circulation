@@ -51,7 +51,14 @@ export default createStore({
          let f = sect.facets.find( f => f.facet == facet)
          return f.label
       },
-
+      findFacetValue: state => (queryStr) => {
+         if (state.targetFacet) {
+            let lcq = queryStr.toLowerCase()
+            let v = state.targetFacet.values.find( v => v.toLowerCase().indexOf(lcq) == 0)
+            return v
+         }
+         return false
+      },
       isFacetValueSelected: state => (val) => {
          if (state.targetFacet) {
             return (state.targetFacet.selected.findIndex( s => s == val) > -1)
