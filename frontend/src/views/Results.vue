@@ -22,7 +22,7 @@
                <span class="data">
                   <div class="section" v-for="section in hit.sections" :key="section.label">
                      <template v-if="section.label != 'Checkout Information'">
-                        <div class="section-name">{{section.label}}</div>
+                        <div class="section-name">{{section.label}}(s)</div>
                         <dl class="fields">
                            <template v-for="(field,fidx) in section.fields" :key="`hit-${idx}-field-${fidx}`">
                               <dt class="label">{{field.label}}:</dt>

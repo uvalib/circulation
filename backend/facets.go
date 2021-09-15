@@ -33,26 +33,26 @@ func (svc *serviceContext) getFacets(c *gin.Context) {
 		// user
 		{Label: "User Role", Facet: "user_role_a", FilterType: "select", Section: "User", Sort: true},
 		{Label: "Borrower Profile", Facet: "borrower_profile_a", FilterType: "select", Section: "User", Sort: true},
-		{Label: "Faculty Type", Facet: "job_title_a", FilterType: "select", Section: "User"},
-		{Label: "Degree Seeking", Facet: "is_degree_seeking_a", FilterType: "select", Section: "User"},
-		{Label: "Degree Level", Facet: "plan_degree_a", FilterType: "select", Section: "User"},
+		{Label: "Faculty Type", Facet: "job_title_a", FilterType: "select", Section: "User", Sort: true},
+		{Label: "Degree Seeking", Facet: "is_degree_seeking_a", FilterType: "select", Section: "User", Sort: true},
+		{Label: "Degree Level", Facet: "plan_degree_a", FilterType: "select", Section: "User", Sort: true},
 		// student appointment not populated
 
 		// location
 		{Label: "Station Library", Facet: "checkout_library_a", FilterType: "select", Section: "Location", Sort: true},
-		{Label: "Item Library", Facet: "item_library_a", FilterType: "select", Section: "Location"},
-		{Label: "Item Location", Facet: "home_loc_a", FilterType: "select", Section: "Location"},
-		{Label: "Reserve Desk", Facet: "reserve_a", FilterType: "select", Section: "Location"},
-		{Label: "User Library", Facet: "user_library_a", FilterType: "select", Section: "Location"},
+		{Label: "Item Library", Facet: "item_library_a", FilterType: "select", Section: "Location", Sort: true},
+		{Label: "Item Location", Facet: "home_loc_a", FilterType: "select", Section: "Location", Sort: true},
+		{Label: "Reserve Desk", Facet: "reserve_a", FilterType: "select", Section: "Location", Sort: true},
+		{Label: "User Library", Facet: "user_library_a", FilterType: "select", Section: "Location", Sort: true},
 
 		// item
-		{Label: "Primary Subject", Facet: "call_number_narrow_a", FilterType: "select", Section: "Item"},
-		{Label: "Subject Fields", Facet: "subject_t", FilterType: "subject", Section: "Item"},
-		{Label: "Item Class Scheme", Facet: "item_class_scheme_a", FilterType: "select", Section: "Item"},
-		{Label: "Item Type", Facet: "item_type_a", FilterType: "select", Section: "Item"},
-		{Label: "Format", Facet: "format_a", FilterType: "select", Section: "Item"},
-		{Label: "Publication Year", Facet: "pub_year_a", FilterType: "select", Section: "Item"},
-		{Label: "Language", Facet: "language_a", FilterType: "select", Section: "Item"}}
+		{Label: "Primary Subject", Facet: "call_number_narrow_a", FilterType: "select", Section: "Item", Sort: true},
+		{Label: "Subject Fields", Facet: "subject_t", FilterType: "subject", Section: "Item", Sort: true},
+		{Label: "Item Class Scheme", Facet: "item_class_scheme_a", FilterType: "select", Section: "Item", Sort: true},
+		{Label: "Item Type", Facet: "item_type_a", FilterType: "select", Section: "Item", Sort: true},
+		{Label: "Format", Facet: "format_a", FilterType: "select", Section: "Item", Sort: true},
+		{Label: "Publication Year", Facet: "pub_year_a", FilterType: "select", Section: "Item", Sort: true},
+		{Label: "Language", Facet: "language_a", FilterType: "select", Section: "Item", Sort: true}}
 
 	for _, fi := range facetNames {
 		if fi.FilterType == "select" {

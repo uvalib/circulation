@@ -1,7 +1,10 @@
 <template>
    <div class="picker-dimmer">
       <div role="dialog" class="picker-dialog" @keyup.esc.prevent.stop="closePicker">
-         <div class="title">{{targetSection}} : {{facetLabel(targetSection, targetFacetID)}}</div>
+         <div class="title">
+            <span>{{targetSection}} : {{facetLabel(targetSection, targetFacetID)}}</span>
+            <button @click="closePicker" class="close-btn"><i class="fas fa-window-close"></i></button>
+         </div>
          <div class="finder" v-if="showFinder">
             <label for="facet-query">Find:</label>
             <input type="text" id="facet-query" v-model="query" @input="queryTyped" @keyup.enter.prevent.stop="querySelected"/>
@@ -142,10 +145,24 @@ export default {
          font-size: 1.1em;
          color: var(--uvalib-text-dark);
          font-weight: 500;
-         padding: 5px 10px;
+         padding: 5px 5px 5px 10px;
          border-radius: 5px 5px 0 0;
          border-bottom: 2px solid  var(--uvalib-blue-alt);
          text-align: left;
+         display: flex;
+         flex-flow: row nowrap;
+         justify-content: space-between;
+         .close-btn {
+            background: transparent;
+            border: none;
+            padding: 0;
+            font-size: 1.2em;
+            cursor: pointer;
+            color: var(--uvalib-blue-alt-dark);
+            &:hover {
+               color: var(--uvalib-blue-alt);
+            }
+         }
       }
       .scroller {
          max-height: 300px;

@@ -18,7 +18,7 @@
             </select>
             <span class="date-item date-label">Date</span>
             <select class="date-item date-range-type" v-model="dc.comparison" :aria-label="`date comparision mode for date ${idx+1}`">
-               <option value="EQUAL">EQUALS</option>
+               <option value="EQUAL">IS</option>
                <option value="AFTER">AFTER</option>
                <option value="BEFORE">BEFORE</option>
                <option value="BETWEEN">BETWEEN</option>

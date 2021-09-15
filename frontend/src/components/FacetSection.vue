@@ -11,7 +11,7 @@
                </td>
             </template>
             <template v-else>
-               <td class="label">{{f.label}}:</td>
+               <td class="label">{{f.label}}(s):</td>
                <td class="data">
                   <span class="selection" @click="showFacetValues(f.facet)">
                      <span class="any" v-if="anySelected(name,f.facet) == false">
@@ -20,6 +20,7 @@
                      <template v-else>
                         {{facetSelections(name,f.facet).join(", ")}}
                      </template>
+                     <span class="fake-link">[edit]</span>
                   </span>
                </td>
             </template>
@@ -81,6 +82,13 @@ export default {
          width: 175px;
          font-weight: bold;
          vertical-align: text-top;
+      }
+   }
+   .fake-link {
+      margin-left: 5px;
+      color: var(--color-link);
+      &:hover {
+         text-decoration: underline;
       }
    }
    .subject-entry {
