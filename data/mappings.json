@@ -16,7 +16,7 @@
    },
    {
       "field": "organization_name_str",
-      "label": "Organizationr",
+      "label": "Organization",
       "section": "User Information"
    },
    {
@@ -62,6 +62,11 @@
    {
       "field": "user_library_str",
       "label": "User Library",
+      "section": "User Information"
+   },
+   {
+      "field": "salted_hash_str",
+      "label": "Salted Hash",
       "section": "User Information"
    },
    {

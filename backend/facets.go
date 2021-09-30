@@ -52,7 +52,11 @@ func (svc *serviceContext) getFacets(c *gin.Context) {
 		{Label: "Item Type", Facet: "item_type_a", FilterType: "select", Section: "Item", Sort: true},
 		{Label: "Format", Facet: "format_a", FilterType: "select", Section: "Item", Sort: true},
 		{Label: "Publication Year", Facet: "pub_year_a", FilterType: "select", Section: "Item", Sort: true},
-		{Label: "Language", Facet: "language_a", FilterType: "select", Section: "Item", Sort: true}}
+		{Label: "Language", Facet: "language_a", FilterType: "select", Section: "Item", Sort: true},
+
+		// just used for sorting
+		{Label: "Call Number", Facet: "callnumber_a", FilterType: "none", Section: "None", Sort: true},
+		{Label: "Salted Hash", Facet: "salted_hash_str", FilterType: "none", Section: "None", Sort: true}}
 
 	for _, fi := range facetNames {
 		if fi.FilterType == "select" {

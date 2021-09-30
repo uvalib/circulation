@@ -5,7 +5,7 @@
          <WaitSpinner :message="waitMessage" />
       </div>
       <div v-else class="search-form">
-         <div v-for="(sf,idx) in facets" :key="`sectiion-${idx+1}`">
+         <div v-for="(sf,idx) in facets.filter(f => f.section != 'None')" :key="`sectiion-${idx+1}`">
             <DateSection v-if="sf.section == 'Date'" />
             <FacetSection v-else :name="sf.section" />
          </div>
