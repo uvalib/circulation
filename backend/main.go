@@ -5,12 +5,13 @@ import (
 	"log"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
 // Version of the service
-const Version = "1.0.0"
+const Version = "1.0.1"
 
 func main() {
 	// Load cfg
@@ -22,9 +23,14 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	gin.DisableConsoleColor()
 	router := gin.Default()
+	router.Use(gzip.Gzip(gzip.DefaultCompression))
+
+	corsCfg := cors.DefaultConfig()
+	corsCfg.AllowAllOrigins = true
+	corsCfg.AllowCredentials = true
+	router.Use(cors.New(corsCfg))
 
 	// Set routes and start server
-	router.Use(cors.Default())
 	router.GET("/version", svc.getVersion)
 	router.GET("/healthcheck", svc.healthCheck)
 	api := router.Group("/api")
