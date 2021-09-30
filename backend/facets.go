@@ -67,7 +67,7 @@ func (svc *serviceContext) getFacets(c *gin.Context) {
 			qParams = append(qParams, "facet.limit=10000")
 
 			solrURL := fmt.Sprintf("%s/solr/%s/select?%s", svc.SolrURL, svc.SolrCore, strings.Join(qParams, "&"))
-			resp, err := svc.getAPIResponse(solrURL)
+			resp, err := svc.getAPIResponse(solrURL, svc.HTTPClient)
 			if err != nil {
 				log.Printf("ERROR: user %s solr query failed: %s", user, err.Error())
 				c.String(http.StatusInternalServerError, err.Error())

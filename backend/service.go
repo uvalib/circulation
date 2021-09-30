@@ -48,18 +48,19 @@ type solrMapping struct {
 
 // ServiceContext contains common data used by all handlers
 type serviceContext struct {
-	Version      string
-	SolrURL      string
-	SolrCore     string
-	HTTPClient   *http.Client
-	SolrMappings []solrMapping
+	Version          string
+	SolrURL          string
+	SolrCore         string
+	HTTPClient       *http.Client
+	ExportHTTPClient *http.Client
+	SolrMappings     []solrMapping
 }
 
 // InitializeService sets up the service context for all API handlers
 func initializeService(version string, cfg *configData) *serviceContext {
 	ctx := serviceContext{Version: version, SolrURL: cfg.solrURL, SolrCore: cfg.solrCore}
 
-	log.Printf("INFO: create HTTP client...")
+	log.Printf("INFO: create HTTP clients...")
 	defaultTransport := &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{
@@ -75,9 +76,13 @@ func initializeService(version string, cfg *configData) *serviceContext {
 	}
 	ctx.HTTPClient = &http.Client{
 		Transport: defaultTransport,
-		Timeout:   5 * time.Second,
+		Timeout:   15 * time.Second,
 	}
-	log.Printf("INFO: HTTP Client created")
+	ctx.ExportHTTPClient = &http.Client{
+		Transport: defaultTransport,
+		Timeout:   60 * time.Second,
+	}
+	log.Printf("INFO: HTTP Clients created")
 
 	log.Printf("INFO: loading solr mapping")
 	mapFile, err := os.Open("data/mappings.json")
@@ -120,13 +125,13 @@ func (svc *serviceContext) getVersion(c *gin.Context) {
 	c.JSON(http.StatusOK, vMap)
 }
 
-func (svc *serviceContext) getAPIResponse(url string) ([]byte, error) {
+func (svc *serviceContext) getAPIResponse(url string, httpClient *http.Client) ([]byte, error) {
 	log.Printf("INFO: GET API Response from %s, timeout  %.0f sec", url, svc.HTTPClient.Timeout.Seconds())
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36")
 
 	startTime := time.Now()
-	resp, rawErr := svc.HTTPClient.Do(req)
+	resp, rawErr := httpClient.Do(req)
 	elapsedNanoSec := time.Since(startTime)
 	elapsedMS := int64(elapsedNanoSec / time.Millisecond)
 	bodyBytes, err := handleAPIResponse(url, resp, rawErr)

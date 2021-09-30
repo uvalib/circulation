@@ -100,7 +100,11 @@ func (svc *serviceContext) searchHandler(c *gin.Context) {
 	}
 
 	solrURL := fmt.Sprintf("%s/solr/%s/select?%s", svc.SolrURL, svc.SolrCore, strings.Join(qParams, "&"))
-	resp, err := svc.getAPIResponse(solrURL)
+	httpClient := svc.HTTPClient
+	if export != "" {
+		httpClient = svc.ExportHTTPClient
+	}
+	resp, err := svc.getAPIResponse(solrURL, httpClient)
 	if err != nil {
 		log.Printf("ERROR: user %s solr search query failed: %s", user, err.Error())
 		c.String(http.StatusInternalServerError, err.Error())
