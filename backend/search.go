@@ -52,6 +52,11 @@ type searchHit struct {
 	Sections []sectionData `json:"sections"`
 }
 
+type csvChunk struct {
+	BytesBuffer *bytes.Buffer
+	Error       error
+}
+
 func (svc *serviceContext) searchHandler(c *gin.Context) {
 	user := c.GetString("user")
 	export := c.Query("export")
@@ -69,8 +74,6 @@ func (svc *serviceContext) searchHandler(c *gin.Context) {
 		return
 	}
 	qParams := make([]string, 0)
-	qParams = append(qParams, fmt.Sprintf("start=%d", req.Pagination.Start))
-	qParams = append(qParams, fmt.Sprintf("rows=%d", req.Pagination.Rows))
 	qParams = append(qParams, "fl=*")
 	qParams = append(qParams, fmt.Sprintf("sort=%s", req.SortOrder))
 
@@ -99,34 +102,27 @@ func (svc *serviceContext) searchHandler(c *gin.Context) {
 		qParams = append(qParams, fmt.Sprintf("q=subject_t:(%s)", url.QueryEscape(req.SubjectQuery)))
 	}
 
-	solrURL := fmt.Sprintf("%s/solr/%s/select?%s", svc.SolrURL, svc.SolrCore, strings.Join(qParams, "&"))
-	httpClient := svc.HTTPClient
-	if export != "" {
-		httpClient = svc.ExportHTTPClient
-	}
-	resp, err := svc.getAPIResponse(solrURL, httpClient)
-	if err != nil {
-		log.Printf("ERROR: user %s solr search query failed: %s", user, err.Error())
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
+	if export == "" {
+		qParams = append(qParams, fmt.Sprintf("start=%d", req.Pagination.Start))
+		qParams = append(qParams, fmt.Sprintf("rows=%d", req.Pagination.Rows))
+		solrURL := fmt.Sprintf("%s/solr/%s/select?%s", svc.SolrURL, svc.SolrCore, strings.Join(qParams, "&"))
 
-	var respJSON solrResponse
-	err = json.Unmarshal(resp, &respJSON)
-	if err != nil {
-		log.Printf("ERROR: user %s unable to parse solr response: %s", user, err.Error())
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
+		resp, err := svc.getAPIResponse(solrURL, svc.HTTPClient)
+		if err != nil {
+			log.Printf("ERROR: user %s solr search query failed: %s", user, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
 
-	log.Printf("INFO: user %s gets %d total hits for solr query", user, respJSON.Response.NumFound)
-	if export != "" {
-		csvBuff := svc.generateCSVExport(respJSON.Response.Docs)
-		c.Header("Content-Description", "File Transfer")
-		fileName := fmt.Sprintf("circ-report-%s.csv", time.Now().Format("2006-01-02"))
-		c.Header("Content-Disposition", "attachment; filename="+fileName)
-		c.Data(http.StatusOK, "text/csv", csvBuff.Bytes())
-	} else {
+		var respJSON solrResponse
+		err = json.Unmarshal(resp, &respJSON)
+		if err != nil {
+			log.Printf("ERROR: user %s unable to parse solr response: %s", user, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		log.Printf("INFO: user %s gets %d total hits for solr query", user, respJSON.Response.NumFound)
 		var out struct {
 			Total int          `json:"total"`
 			Hits  *[]searchHit `json:"hits"`
@@ -135,7 +131,44 @@ func (svc *serviceContext) searchHandler(c *gin.Context) {
 		out.Hits = svc.extractHitData(respJSON.Response.Docs)
 
 		c.JSON(http.StatusOK, out)
+		return
 	}
+
+	// Export request: split the total up into a bunch of smaller requests and string together the full response
+	currStart := 0
+	perPage := 1000
+	baseSolrURL := fmt.Sprintf("%s/solr/%s/select?%s", svc.SolrURL, svc.SolrCore, strings.Join(qParams, "&"))
+	out := new(bytes.Buffer)
+	done := false
+	for done == false {
+		solrURL := fmt.Sprintf("%s&start=%d&rows=%d", baseSolrURL, currStart, perPage)
+		resp, err := svc.getAPIResponse(solrURL, svc.ExportHTTPClient)
+		if err != nil {
+			log.Printf("ERROR: user %s solr search query failed: %s", user, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		var respJSON solrResponse
+		err = json.Unmarshal(resp, &respJSON)
+		if err != nil {
+			log.Printf("ERROR: user %s unable to parse solr response: %s", user, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		csvBuff := svc.generateCSVExport(respJSON.Response.Docs)
+		out.Write(csvBuff.Bytes())
+		currStart += perPage
+		if currStart >= req.Pagination.Rows {
+			done = true
+		}
+	}
+
+	c.Header("Content-Description", "File Transfer")
+	fileName := fmt.Sprintf("circ-report-%s.csv", time.Now().Format("2006-01-02"))
+	c.Header("Content-Disposition", "attachment; filename="+fileName)
+	c.Data(http.StatusOK, "text/csv", out.Bytes())
 }
 
 func (svc *serviceContext) generateCSVExport(solrHits []solrDocument) *bytes.Buffer {

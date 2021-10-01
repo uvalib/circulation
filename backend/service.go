@@ -134,13 +134,17 @@ func (svc *serviceContext) getAPIResponse(url string, httpClient *http.Client) (
 	resp, rawErr := httpClient.Do(req)
 	elapsedNanoSec := time.Since(startTime)
 	elapsedMS := int64(elapsedNanoSec / time.Millisecond)
+	log.Printf("INFO: raw %s response elapsed time: %d (ms)", url, elapsedMS)
 	bodyBytes, err := handleAPIResponse(url, resp, rawErr)
+	elapsedNanoSec = time.Since(startTime)
+	elapsedMS = int64(elapsedNanoSec / time.Millisecond)
+
 	if err != nil {
-		log.Printf("ERROR: %s : %s. Elapsed Time: %d (ms)", url, err.Error(), elapsedMS)
+		log.Printf("ERROR: %s : %s. Total Elapsed Time: %d (ms)", url, err.Error(), elapsedMS)
 		return nil, err
 	}
 
-	log.Printf("INFO: successful response from %s. Elapsed Time: %d (ms)", url, elapsedMS)
+	log.Printf("INFO: successful response from %s. Total Elapsed Time: %d (ms)", url, elapsedMS)
 	return bodyBytes, nil
 }
 
