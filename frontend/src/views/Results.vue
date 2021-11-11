@@ -5,7 +5,7 @@
          <WaitSpinner message="Searching..." />
       </div>
       <template v-else>
-         <WaitSpinner  v-if="working && hits.length > 0" :message="message" :overlay="true"/>
+         <WaitSpinner  v-if="working && hits.length > 0" :message="waitMessage" :overlay="true"/>
          <div class="toolbar">
             <span class="controls">
                <button @click="refineClicked">Refine Search</button>
@@ -45,6 +45,7 @@
 <script>
 import WaitSpinner from "@/components/WaitSpinner"
 import { mapState } from 'vuex'
+import { mapFields } from 'vuex-map-fields'
 export default {
    name: "Results",
    components: {
@@ -61,7 +62,11 @@ export default {
          hits: state => state.hits,
          page: state => state.page,
          totalHits: state => state.totalHits,
+         maxExport: state => state.maxExport,
          pageSize: state => state.pageSize,
+      }),
+      ...mapFields({
+         message: 'message',
       }),
       hasMore() {
          return this.hits.length < this.totalHits
@@ -69,8 +74,12 @@ export default {
    },
    methods: {
       csvClicked() {
-         this.message = "Generating CSV..."
-         this.$store.dispatch("search", "export")
+         if ( this.totalHits > this.maxExport) {
+            this.message = `Your query contains ${this.totalHits} rows. Export is limited to ${this.maxExport}.<br/>Please refine your search and try again.`
+         } else {
+            this.waitMessage = "Generating CSV..."
+            this.$store.dispatch("search", "export")
+         }
       },
       formatCheckoutInfo(fields) {
          let lib =  fields.find( f=>f.label == "Checkout Library")

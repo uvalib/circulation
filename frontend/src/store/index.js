@@ -21,6 +21,7 @@ export default createStore({
       pageSize: 50,
       hits: [],
       totalHits: -1,
+      maxExport: 10000,
       sort: "checkout_date%20asc"
    },
    getters: {
@@ -127,6 +128,7 @@ export default createStore({
       },
       addSearchHits(state, hitData) {
          state.totalHits = hitData.total
+         state.maxExport = hitData.maxExport
          hitData.hits.forEach( h => state.hits.push(h) )
       },
       clearAll(state) {

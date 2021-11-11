@@ -36,8 +36,9 @@ type solrResponseFacets struct {
 }
 
 type solrResponse struct {
-	Header   solrResponseHeader    `json:"responseHeader,omitempty"`
-	Response solrResponseDocuments `json:"response,omitempty"`
+	Header         solrResponseHeader    `json:"responseHeader,omitempty"`
+	Response       solrResponseDocuments `json:"response,omitempty"`
+	NextCursorMark string                `json:"nextCursorMark,omitempty"`
 }
 
 type solrMapping struct {
@@ -51,6 +52,8 @@ type serviceContext struct {
 	Version          string
 	SolrURL          string
 	SolrCore         string
+	CSVPageSize      int
+	CSVMaxRows       uint
 	HTTPClient       *http.Client
 	ExportHTTPClient *http.Client
 	SolrMappings     []solrMapping
@@ -58,7 +61,8 @@ type serviceContext struct {
 
 // InitializeService sets up the service context for all API handlers
 func initializeService(version string, cfg *configData) *serviceContext {
-	ctx := serviceContext{Version: version, SolrURL: cfg.solrURL, SolrCore: cfg.solrCore}
+	ctx := serviceContext{Version: version, SolrURL: cfg.solrURL, SolrCore: cfg.solrCore,
+		CSVPageSize: cfg.csvPageSize, CSVMaxRows: cfg.csvMax}
 
 	log.Printf("INFO: create HTTP clients...")
 	defaultTransport := &http.Transport{
