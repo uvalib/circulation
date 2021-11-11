@@ -31,6 +31,8 @@ func (svc *serviceContext) getFacets(c *gin.Context) {
 		{Label: "Department", Facet: "department_a", FilterType: "select", Section: "Organization", Sort: true},
 
 		// user
+		{Label: "Job Family Group", Facet: "job_family_group_a", FilterType: "select", Section: "User", Sort: true},
+		{Label: "Job Family Name", Facet: "job_family_name_a", FilterType: "select", Section: "User", Sort: true},
 		{Label: "User Role", Facet: "user_role_a", FilterType: "select", Section: "User", Sort: true},
 		{Label: "Borrower Profile", Facet: "borrower_profile_a", FilterType: "select", Section: "User", Sort: true},
 		{Label: "Faculty Type", Facet: "job_title_a", FilterType: "select", Section: "User", Sort: true},

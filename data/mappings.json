@@ -30,6 +30,17 @@
       "section": "User Information"
    },
    {
+      "field": "job_family_group_str",
+      "label": "Job Family Group",
+      "section": "User Information"
+   },
+   {
+      "field": "job_family_name_str",
+      "label": "Job Family Name",
+      "section": "User Information"
+   },
+
+   {
       "field": "user_role_str",
       "label": "Role",
       "section": "User Information"
