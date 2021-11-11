@@ -75,7 +75,8 @@ export default {
    methods: {
       csvClicked() {
          if ( this.totalHits > this.maxExport) {
-            this.message = `Your query contains ${this.totalHits} rows. Export is limited to ${this.maxExport}.<br/>Please refine your search and try again.`
+            let email = '<br/></br>If you require a larger export, please contact <a href="mailto:lib-circ-data@virginia.edu">lib-circ-data@virginia.edu</a>.'
+            this.message = `Your query contains ${this.totalHits} results. Export is currently limited to ${this.maxExport}.<br/>Please refine your search and try again. ${email}`
          } else {
             this.waitMessage = "Generating CSV..."
             this.$store.dispatch("search", "export")
