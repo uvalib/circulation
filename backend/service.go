@@ -80,7 +80,7 @@ func initializeService(version string, cfg *configData) *serviceContext {
 	}
 	ctx.HTTPClient = &http.Client{
 		Transport: defaultTransport,
-		Timeout:   15 * time.Second,
+		Timeout:   25 * time.Second,
 	}
 	ctx.ExportHTTPClient = &http.Client{
 		Transport: defaultTransport,
