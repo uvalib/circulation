@@ -1,6 +1,11 @@
 <template>
    <div class="home">
-      <h1>Search User Circulation Data</h1>
+      <h1>
+         <span>Search User Circulation Data</span>
+         <div class="help">
+            <a href="https://confluence.lib.virginia.edu/x/l6AlBw" target="_blank"><i class="icon far fa-question-circle"></i>Search Help</a>
+         </div>
+      </h1>
       <div class="work" v-if="working" >
          <WaitSpinner :message="waitMessage" />
       </div>
@@ -150,6 +155,22 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.help {
+   font-size: 0.7em;
+   margin-top: 10px;
+   a {
+      color: var(--color-link);
+      text-decoration: none;
+      font-weight: normal;
+      &:hover {
+         text-decoration: underline;
+      }
+   }
+   .icon {
+      display: inline-block;
+      margin-right: 8px;;
+   }
+}
 .work {
    margin-top: 20px;
 }
@@ -163,7 +184,7 @@ export default {
    h1 {
       font-size: 1.4em;
       color: var(--uvalib-brand-orange);
-      margin-bottom: 35px;
+      margin-bottom: 25px;
    }
    .toolbar {
       margin-top: 15px;
