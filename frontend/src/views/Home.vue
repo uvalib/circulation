@@ -94,6 +94,12 @@ export default {
             }
          }
 
+         if (this.$matomo) {
+            this.$matomo.trackEvent("Search", "BASIC_SEARCH", "")
+         } else {
+            console.error("matomo not present; unable to log search analytics")
+         }
+
          this.waitMessage = "Searching..."
          this.$store.dispatch("search", "new")
       },

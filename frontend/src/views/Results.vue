@@ -74,6 +74,12 @@ export default {
    },
    methods: {
       csvClicked() {
+         if (this.$matomo) {
+            this.$matomo.trackEvent("Results", "DOWNLOAD_CSV", "records "+this.totalHits)
+         } else {
+            console.error("matomo not present; unable to log search analytics")
+         }
+
          if ( this.totalHits > this.maxExport) {
             let email = '<br/></br>If you require a larger export, please contact <a href="mailto:lib-circ-data@virginia.edu">lib-circ-data@virginia.edu</a>.'
             this.message = `Your query contains ${this.totalHits} results. Export is currently limited to ${this.maxExport}.<br/>Please refine your search and try again. ${email}`
