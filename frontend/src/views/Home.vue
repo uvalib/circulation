@@ -1,5 +1,6 @@
 <template>
    <div class="home">
+      <div class="compatibility"><b>NOTE:</b> This site has compatibility issues with Chrome. Please use Firefox instead.</div>
       <h1>
          <span>Search User Circulation Data</span>
          <div class="help">
@@ -28,6 +29,7 @@
                <button class="main reset" @click="resetForm">Reset Form</button>
                <button class="main generate" @click="search">Search</button>
             </span>
+            <div class="filler"></div>
          </div>
       </div>
       <FacetPicker v-if="showPicker" />
@@ -186,7 +188,12 @@ export default {
    color: var(--uvalib-red-emergency);
 }
 .home {
-   padding: 25px;
+   padding: 0 0 25px 0;
+   .compatibility {
+      margin-bottom: 25px;
+      padding: 10px;
+      background: var(--uvalib-teal-light);
+   }
    h1 {
       font-size: 1.4em;
       color: var(--uvalib-brand-orange);
@@ -194,14 +201,18 @@ export default {
    }
    .toolbar {
       margin-top: 15px;
-      padding-top: 25px;
+      padding: 25px;
       border-top: 1px solid var(--uvalib-grey-light);
-      text-align: center;
       position: relative;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: space-between;
+      .filler {
+         flex-grow: .3;
+      }
       .sort-control {
          display: inline-block;
-         position: absolute;
-         left: 0;
          label {
             font-weight: bold;
             margin-right: 10px;
