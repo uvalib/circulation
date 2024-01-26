@@ -4,7 +4,7 @@
       <h1>
          <span>Search User Circulation Data</span>
          <div class="help">
-            <a href="https://confluence.lib.virginia.edu/x/l6AlBw" target="_blank"><i class="icon far fa-question-circle"></i>Search Help</a>
+            <a href="https://confluence.its.virginia.edu/x/l6AlBw" target="_blank"><i class="icon far fa-question-circle"></i>Search Help</a>
          </div>
       </h1>
       <div class="work" v-if="working" >
