@@ -37,10 +37,10 @@
 </template>
 
 <script>
-import DateSection from "@/components/DateSection"
-import FacetSection from "@/components/FacetSection"
-import WaitSpinner from "@/components/WaitSpinner"
-import FacetPicker from "@/components/FacetPicker"
+import DateSection from "@/components/DateSection.vue"
+import FacetSection from "@/components/FacetSection.vue"
+import WaitSpinner from "@/components/WaitSpinner.vue"
+import FacetPicker from "@/components/FacetPicker.vue"
 import { mapFields } from 'vuex-map-fields'
 import { mapState, mapGetters } from 'vuex'
 export default {

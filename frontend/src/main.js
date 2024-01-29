@@ -22,6 +22,7 @@ app.use(VueMatomo, {
 store.router = router
 
 import '@fortawesome/fontawesome-free/css/all.css'
+import './assets/styles/uva-colors.css'
 
 // actually mount to DOM
 app.mount('#app')

@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import WaitSpinner from "@/components/WaitSpinner"
+import WaitSpinner from "@/components/WaitSpinner.vue"
 import { mapState } from 'vuex'
 import { mapFields } from 'vuex-map-fields'
 export default {

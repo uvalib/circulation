@@ -24,11 +24,6 @@ func main() {
 	gin.DisableConsoleColor()
 	router := gin.Default()
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
-
-	// corsCfg := cors.DefaultConfig()
-	// corsCfg.AllowAllOrigins = true
-	// corsCfg.AllowCredentials = true
-	// router.Use(cors.New(corsCfg))
 	router.Use(cors.Default())
 
 	// Set routes and start server

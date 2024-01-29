@@ -19,7 +19,7 @@ darwin-full: darwin web
 
 web:
 	mkdir -p bin/
-	cd frontend && yarn install && yarn build
+	cd frontend && npm install && npm run build
 	rm -rf bin/public
 	mv frontend/dist bin/public
 
@@ -39,7 +39,7 @@ vet:
 	cd backend; $(GOVET)
 
 dep:
-	cd frontend && yarn upgrade
+	cd frontend && npm upgrade
 	$(GOGET) -u ./backend/...
 	$(GOMOD) tidy
 	$(GOMOD) verify
