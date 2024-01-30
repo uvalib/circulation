@@ -1,12 +1,12 @@
 <template>
    <div class="section">
-      <h2>{{name}}</h2>
+      <h2>{{props.name}}</h2>
       <table>
-         <tr class="option" v-for="f in sectionFacets(name)" :key="f.facet">
+         <tr class="option" v-for="f in searchStore.sectionFacets(name)" :key="f.facet">
             <template v-if="f.filterType=='subject'">
                <td class="label">{{f.label}}:</td>
                <td class="data">
-                  <input class="subject-entry" v-model="subjectQuery">
+                  <input class="subject-entry" v-model="searchStore.subjectQuery">
                   <div class="note">Enter one or more subject names separated by AND/OR. Wilidard * is accepted. No entry matches any subject. Example: argent* AND history</div>
                </td>
             </template>
@@ -14,11 +14,11 @@
                <td class="label">{{f.label}}(s):</td>
                <td class="data">
                   <span class="selection" @click="showFacetValues(f.facet)">
-                     <span class="any" v-if="anySelected(name,f.facet) == false">
+                     <span class="any" v-if="anySelected(f.facet) == false">
                         Any
                      </span>
                      <template v-else>
-                        {{facetSelections(name,f.facet).join(", ")}}
+                        {{searchStore.facetSelections(f.facet).join(", ")}}
                      </template>
                      <span class="fake-link">[edit]</span>
                   </span>
@@ -29,39 +29,26 @@
    </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
-import { mapFields } from 'vuex-map-fields'
-export default {
-   props: {
-      name: {
-         type: String,
-         required: true
-      }
-   },
-   computed: {
-      ...mapGetters({
-         sectionFacets: 'sectionFacets',
-         facetValues: 'facetValues',
-         facetSelections: 'facetSelections'
-      }),
-      ...mapFields({
-         subjectQuery: 'subjectQuery',
-      })
-   },
-   methods: {
-      anySelected(name, facet) {
-         let s = this.facetSelections(name, facet)
-         if (s.length == 1 && s[0] == "Any") {
-            return false
-         }
-         return true
-      },
-      showFacetValues( facet ) {
-         this.$store.commit("showFacetPicker", {section: this.name, facet: facet})
-      }
+<script setup>
+import { useSearchStore } from '@/stores/search'
+
+const searchStore = useSearchStore()
+
+const emit = defineEmits( ['pick' ])
+const props = defineProps({
+   name: {
+      type: String,
+      required: true
    }
-}
+})
+
+const anySelected = ( (facet) => {
+   return searchStore.facetSelections(facet).length > 0
+})
+
+const showFacetValues = ( ( facet ) => {
+   emit("pick", props.name, facet)
+})
 </script>
 
 <style lang="scss" scoped>

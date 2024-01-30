@@ -10,9 +10,9 @@
             <router-link to="/">Circulation</router-link>
          </div>
       </div>
-      <div v-if="fatalError" class="fatal-err">
+      <div v-if="searchStore.fatalError" class="fatal-err">
          <h1>Internal System Error</h1>
-         <p>{{fatalError}}</p>
+         <p>{{searchStore.fatalError}}</p>
          <p>Sorry for the inconvenience! We are aware of the issue and are working to resolve it. Please check back later.</p>
       </div>
       <template v-else>
@@ -23,21 +23,13 @@
    </div>
 </template>
 
-<script>
+<script setup>
 import UvaLibraryLogo from "@/components/UvaLibraryLogo.vue"
 import MessageBox from "@/components/MessageBox.vue"
 import ScrollToTop from "@/components/ScrollToTop.vue"
-import { mapState } from 'vuex'
-export default {
-   components: {
-      MessageBox, UvaLibraryLogo, ScrollToTop
-   },
-   computed: {
-      ...mapState({
-         fatalError: state => state.fatalError
-      }),
-   }
-};
+import { useSearchStore } from '@/stores/search'
+
+const searchStore = useSearchStore()
 </script>
 
 <style lang="scss">

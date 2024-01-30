@@ -1,11 +1,11 @@
 <template>
    <div class="results">
       <h1>Search Results</h1>
-      <div class="work" v-if="working && hits.length == 0" >
+      <div class="work" v-if="searchStore.working && searchStore.hits.length == 0" >
          <WaitSpinner message="Searching..." />
       </div>
       <template v-else>
-         <WaitSpinner  v-if="working && hits.length > 0" :message="waitMessage" :overlay="true"/>
+         <WaitSpinner  v-if="searchStore.working && searchStore.hits.length > 0" :message="waitMessage" :overlay="true"/>
          <div class="toolbar">
             <span class="controls">
                <button @click="refineClicked">Refine Search</button>
@@ -13,11 +13,11 @@
                <button @click="csvClicked">Export CSV</button>
             </span>
             <span class="info">
-               Showing {{hits.length}} of {{totalHits}} results
+               Showing {{searchStore.hits.length}} of {{searchStore.totalHits}} results
             </span>
          </div>
-         <div lass="hits">
-            <div class="hit" v-for="(hit,idx) in hits" :key="`hit-${idx}`">
+         <div class="hits">
+            <div class="hit" v-for="(hit,idx) in searchStore.hits" :key="`hit-${idx}`">
                <span class="num">{{idx+1}}.</span>
                <span class="data">
                   <div class="section" v-for="section in hit.sections" :key="section.label">
@@ -42,85 +42,72 @@
    </div>
 </template>
 
-<script>
+<script setup>
 import WaitSpinner from "@/components/WaitSpinner.vue"
-import { mapState } from 'vuex'
-import { mapFields } from 'vuex-map-fields'
-export default {
-   name: "Results",
-   components: {
-      WaitSpinner
-   },
-   data() {
-      return {
-         waitMessage: "",
-      }
-   },
-   computed: {
-      ...mapState({
-         working: state => state.working,
-         hits: state => state.hits,
-         page: state => state.page,
-         totalHits: state => state.totalHits,
-         maxExport: state => state.maxExport,
-         pageSize: state => state.pageSize,
-      }),
-      ...mapFields({
-         message: 'message',
-      }),
-      hasMore() {
-         return this.hits.length < this.totalHits
-      }
-   },
-   methods: {
-      csvClicked() {
-         if (this.$matomo) {
-            this.$matomo.trackEvent("Results", "DOWNLOAD_CSV", "records "+this.totalHits)
-         } else {
-            console.error("matomo not present; unable to log search analytics")
-         }
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useSearchStore } from '@/stores/search'
 
-         if ( this.totalHits > this.maxExport) {
-            let email = '<br/></br>If you require a larger export, please contact <a href="mailto:lib-circ-data@virginia.edu">lib-circ-data@virginia.edu</a>.'
-            this.message = `Your query contains ${this.totalHits} results. Export is currently limited to ${this.maxExport}.<br/>Please refine your search and try again. ${email}`
-         } else {
-            this.waitMessage = "Generating CSV..."
-            this.$store.dispatch("search", "export")
-         }
-      },
-      formatCheckoutInfo(fields) {
-         let lib =  fields.find( f=>f.label == "Checkout Library")
-         let date =  fields.find( f=>f.label == "Checkout Date")
-         let time =  fields.find( f=>f.label == "Checkout Time")
-         let dateStr = date.value[0]
-         let out = `Checked out from ${lib.value[0]} on ${dateStr.split("T")[0]} at ${time.value[0]}`
-         return out
-      },
-      loadMore() {
-         this.message = "Loading more results..."
-         this.$store.dispatch("search", "more")
-      },
-      refineClicked() {
-         this.$router.push("/?refine=true")
-      },
-      newClicked() {
-         this.$store.commit("clearAll")
-         this.$store.commit("clearSearchHits")
-         this.$router.push("/")
-      },
-      formatData( field ) {
-         if (field.label.includes("Date")) {
-            let out = []
-            field.value.forEach( val => {
-               out.push( val.split("T")[0])
-            })
-            return out.join(", ")
-         }
+const searchStore = useSearchStore()
+const router = useRouter()
 
-         return field.value.join(", ")
-      }
-   },
-}
+const waitMessage = ref("")
+
+const hasMore = computed( () =>{
+   return searchStore.hits.length < searchStore.totalHits
+})
+
+const csvClicked = (() => {
+   if (window._paq ) {
+      window._paq.push(['trackEvent', "Results", "DOWNLOAD_CSV", "records "+searchStore.totalHits])
+   } else {
+      console.error("matomo not present; unable to log download CSV analytics")
+   }
+
+   if ( searchStore.totalHits > searchStore.maxExport) {
+      let email = '<br/></br>If you require a larger export, please contact <a href="mailto:lib-circ-data@virginia.edu">lib-circ-data@virginia.edu</a>.'
+      searchStore.message = `Your query contains ${searchStore.totalHits} results. Export is currently limited to ${searchStore.maxExport}.<br/>Please refine your search and try again. ${email}`
+   } else {
+      waitMessage.value = "Generating CSV..."
+      searchStore.search("export")
+   }
+})
+
+const formatCheckoutInfo = ((fields) => {
+   let lib =  fields.find( f=>f.label == "Checkout Library")
+   let date =  fields.find( f=>f.label == "Checkout Date")
+   let time =  fields.find( f=>f.label == "Checkout Time")
+   let dateStr = date.value[0]
+   let out = `Checked out from ${lib.value[0]} on ${dateStr.split("T")[0]} at ${time.value[0]}`
+   return out
+})
+
+const loadMore = (() => {
+   waitMessage.value = "Loading more results..."
+   searchStore.search("more")
+})
+
+const refineClicked = (() => {
+   router.push("/")
+})
+
+const newClicked = (() => {
+   searchStore.clearAll()
+   searchStore.clearSearchHits()
+   router.push("/")
+})
+
+const formatData = (( field ) => {
+   if (field.label.includes("Date")) {
+      let out = []
+      field.value.forEach( val => {
+         out.push( val.split("T")[0])
+      })
+      return out.join(", ")
+   }
+
+   return field.value.join(", ")
+})
 </script>
 
 <style scoped lang="scss">

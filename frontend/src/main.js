@@ -1,11 +1,18 @@
-import { createApp } from 'vue'
+import { createApp, markRaw } from 'vue'
+import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
-import store from './store'
 import VueMatomo from 'vue-matomo'
 
 const app = createApp(App)
-app.use(store)
+
+const pinia = createPinia()
+pinia.use(({ store }) => {
+   // all stores can access router with this.router
+   store.router = markRaw(router)
+})
+
+app.use(pinia)
 app.use(router)
 
 app.use(VueMatomo, {
@@ -17,9 +24,6 @@ app.use(VueMatomo, {
    trackerFileName: 'piwik',
    debug: true,
 })
-
-// Give the store access to router
-store.router = router
 
 import '@fortawesome/fontawesome-free/css/all.css'
 import './assets/styles/uva-colors.css'

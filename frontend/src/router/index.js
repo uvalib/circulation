@@ -5,12 +5,12 @@ import Results from '../views/Results.vue'
 const routes = [
   {
     path: '/',
-    name: 'Home',
+    name: 'home',
     component: Home
   },
   {
     path: '/results',
-    name: 'Results',
+    name: 'results',
     component: Results
   },
 ]

@@ -4,13 +4,13 @@
          <span>Date / Time</span>
       </h2>
       <div class="criteria">
-         <div class="any" v-if="dateCriteria.length == 0">
+         <div class="any" v-if="searchStore.dateCriteria.length == 0">
              <span class="date-item time-label">Date:</span>
             <span>Any date</span>
             <button class="add" @click="addDate">Add Date</button>
          </div>
 
-         <div v-for="(dc,idx) in dateCriteria" :key="`date-criteria-${idx}`" class="date-row">
+         <div v-for="(dc,idx) in searchStore.dateCriteria" :key="`date-criteria-${idx}`" class="date-row">
             <select v-if="idx > 0" class="date-item date-op" v-model="dc.op" :aria-label="`boolean operator for date number ${idx+1}`">
                <option value="AND">AND</option>
                <option value="OR">OR</option>
@@ -31,59 +31,56 @@
                </template>
             </span>
             <button class="date-item del" @click="removeDate(idx)">Remove Date</button>
-            <button v-if="idx == (dateCriteria.length-1)" class="add" @click="addDate">Add Date</button>
+            <button v-if="idx == (searchStore.dateCriteria.length-1)" class="add" @click="addDate">Add Date</button>
          </div>
          <div class="pad-top date-hint"><b>Accepted date formats</b>: YYYY, YYYY-MM, YYYY-MM-DD</div>
       </div>
       <div class="criteria time">
          <span class="date-item time-label">Time:</span>
-         <label date-item><input type="radio" name="time-mode" class="time-mode" :checked="allDay" @click="setTimeAllDay">All day</label>
+         <label date-item><input type="radio" name="time-mode" class="time-mode" :checked="searchStore.allDay" @click="setTimeAllDay">All day</label>
          <span class="date-item time-range">
-            <label class="date-item"><input type="radio" name="time-mode"  class="time-mode" :checked="!allDay"  @click="setTimeRange">Time Range</label>
-            <input type="text" class="date-item" v-model="timeStart" @keyup="timeChanged" aria-label="start time"/>
+            <label class="date-item"><input type="radio" name="time-mode"  class="time-mode" :checked="!searchStore.allDay"  @click="setTimeRange">Time Range</label>
+            <input type="text" class="date-item" v-model="searchStore.timeStart" @keyup="timeChanged" aria-label="start time"/>
             <span class="date-item">-</span>
-            <input type="text" class="date-item" v-model="timeEnd" @keyup="timeChanged" aria-label="end time"/>
+            <input type="text" class="date-item" v-model="searchStore.timeEnd" @keyup="timeChanged" aria-label="end time"/>
          </span>
          <div class="pad-top date-hint"><b>Accepted time format</b>: HH:MM (24hr)</div>
       </div>
-
-
    </div>
 </template>
 
-<script>
-import { mapMultiRowFields, mapFields } from "vuex-map-fields"
-export default {
-   computed: {
-      ...mapMultiRowFields(["dateCriteria"]),
-      ...mapFields(["timeStart", "timeEnd", "allDay"]),
-   },
-   methods: {
-      timeChanged() {
-         if (this.timeStart != "" || this.timeEnd != "") {
-            this.allDay = false
-         } else {
-            this.setTimeAllDay()
-         }
-      },
-      addDate( ) {
-         this.$store.commit("addDate")
-      },
-      removeDate(idx) {
-         this.$store.commit("removeDate", idx)
-      },
-      setTimeAllDay() {
-         this.allDay = true
-         this.timeStart = ""
-         this.timeEnd = ""
-      },
-      setTimeRange() {
-         this.allDay = false
-         this.timeStart = ""
-         this.timeEnd = ""
-      }
+<script setup>
+import { useSearchStore } from '@/stores/search'
+
+const searchStore = useSearchStore()
+
+const timeChanged = (() => {
+   if (searchStore.timeStart != "" || searchStore.timeEnd != "") {
+      searchStore.allDay = false
+   } else {
+      setTimeAllDay()
    }
-}
+})
+
+const addDate = ( () => {
+   searchStore.addDate()
+})
+
+const removeDate = ( (idx) => {
+   searchStore.removeDate(idx)
+})
+
+const setTimeAllDay = (() => {
+   searchStore.allDay = true
+   searchStore.timeStart = ""
+   searchStore.timeEnd = ""
+})
+
+const setTimeRange = (() => {
+   searchStore.allDay = false
+   searchStore.timeStart = ""
+   searchStore.timeEnd = ""
+})
 </script>
 
 <style lang="scss" scoped>

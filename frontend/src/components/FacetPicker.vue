@@ -2,17 +2,17 @@
    <div class="picker-dimmer">
       <div role="dialog" class="picker-dialog" @keyup.esc.prevent.stop="closePicker">
          <div class="title">
-            <span>{{targetSection}} : {{facetLabel(targetSection, targetFacetID)}}</span>
+            <span>{{props.section}} : {{searchStore.facetLabel(props.section, props.facet)}}</span>
             <button @click="closePicker" class="close-btn"><i class="fas fa-window-close"></i></button>
          </div>
          <div class="finder" v-if="showFinder">
             <label for="facet-query">Find:</label>
-            <input type="text" id="facet-query" v-model="query" @input="queryTyped" @keyup.enter.prevent.stop="querySelected"/>
+            <input type="text" id="facet-query" v-model="query" @input="queryTyped" @keyup.enter.prevent.stop="querySelected" autofocus />
          </div>
          <div class="scroller">
-            <div class="val" v-for="val in facetValues(targetSection, targetFacetID)" :key="val">
+            <div class="val" v-for="val in searchStore.facetValues(props.section, props.facet)" :key="val">
                <label tabindex="-1" :for="`${val}-cb`" :id="val" class="facet-val">
-                  <input :id="`${val}-cb`" class="cb" type="checkbox" @change="valueToggled(val)" :checked="isChecked(val)">{{val}}
+                  <input :id="`${val}-cb`" class="cb" type="checkbox" @change="valueToggled(val)" :checked="searchStore.isFacetValueSelected(props.facet, val)">{{val}}
                </label>
             </div>
          </div>
@@ -25,73 +25,68 @@
    </div>
 </template>
 
-<script>
-import { mapGetters, mapState } from 'vuex'
-export default {
-   data() {
-      return {
-         query: ""
-      }
-    },
-   computed: {
-      ...mapState({
-         targetSection: state => state.targetSection,
-         targetFacetID: state => state.targetFacetID,
-      }),
-      ...mapGetters({
-         facetValues: 'facetValues',
-         facetSelections: 'facetSelections',
-         facetLabel: 'facetLabel',
-         isChecked: 'isFacetValueSelected',
-         findFacetValue: 'findFacetValue',
-      }),
-      showFinder() {
-         console.log("showFinder "+this.targetFacetID)
-         let len = this.facetValues(this.targetSection, this.targetFacetID).length
-         console.log("len "+len)
-         return len > 15
-      }
+<script setup>
+import { useSearchStore } from '@/stores/search'
+import { ref } from 'vue'
+
+const searchStore = useSearchStore()
+const query = ref("")
+
+const emit = defineEmits( ['close' ])
+const props = defineProps({
+   section: {
+      type: String,
+      required: true
    },
-   methods: {
-      queryTyped() {
-         let val = this.findFacetValue(this.query)
-         if (val) {
-            let eles = document.getElementsByClassName("facet-val")
-            for (let i = 0; i < eles.length; i++) {
-               eles[i].classList.remove('curr-facet-val')
-            }
-            let tgt = document.getElementById(val)
-            if (tgt) {
-               tgt.scrollIntoView()
-               tgt.classList.add("curr-facet-val")
-            }
-         }
-      },
-      querySelected() {
-         let eles = document.getElementsByClassName("curr-facet-val")
-         if (eles.length > 0) {
-            let tgtVal = eles[0].id
-            this.$store.commit("toggleFacetValue", tgtVal)
-         }
-      },
-      closePicker() {
-         this.$store.commit("closeFacetPicker")
-      },
-      clearAll() {
-         this.$store.commit("clearAllFacetSelections")
-      },
-      selectAll() {
-         this.$store.commit("selectAllFacetSelections")
-      },
-      valueToggled(val) {
-         this.$store.commit("toggleFacetValue", val)
-      }
-   },
-   mounted() {
-      let finder = document.getElementById("facet-query")
-      if (finder) finder.focus()
+   facet: {
+      type: String,
+      required: true
    }
-}
+})
+
+const showFinder = (() => {
+   let len = searchStore.facetValues(props.section, props.facet).length
+   return len > 15
+})
+
+const queryTyped = (() => {
+   let val = searchStore.findFacetValue(props.section, props.facet, query.value)
+   if (val) {
+      let eles = document.getElementsByClassName("facet-val")
+      for (let i = 0; i < eles.length; i++) {
+         eles[i].classList.remove('curr-facet-val')
+      }
+      let tgt = document.getElementById(val)
+      if (tgt) {
+         tgt.scrollIntoView()
+         tgt.classList.add("curr-facet-val")
+      }
+   }
+})
+
+const querySelected = (() => {
+   let eles = document.getElementsByClassName("curr-facet-val")
+   if (eles.length > 0) {
+      let tgtVal = eles[0].id
+      searchStore.toggleFacetValue(props.facet, tgtVal)
+   }
+})
+
+const closePicker = (() => {
+   emit("close")
+})
+
+const clearAll = (() => {
+   searchStore.clearAllFacetSelections(props.facet)
+})
+
+const selectAll = (() => {
+   searchStore.selectAllFacetValues(props.section, props.facet)
+})
+
+const valueToggled = ( (val) => {
+   searchStore.toggleFacetValue(props.facet, val)
+})
 </script>
 
 <style lang="scss" scoped>
