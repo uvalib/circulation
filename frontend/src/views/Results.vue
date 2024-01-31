@@ -47,6 +47,9 @@ import WaitSpinner from "@/components/WaitSpinner.vue"
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSearchStore } from '@/stores/search'
+import { usePinnable } from '@/composables/pin'
+
+usePinnable("toolbar", "hits", 25)
 
 const searchStore = useSearchStore()
 const router = useRouter()
@@ -122,7 +125,8 @@ const formatData = (( field ) => {
       margin-bottom: 35px;
    }
    .toolbar {
-      padding: 5px;
+      padding: 10px;
+      margin: 0 0 25px 0;
       background: var(--uvalib-grey-lightest);
       display: flex;
       flex-flow: row nowrap;
@@ -143,13 +147,16 @@ const formatData = (( field ) => {
          }
       }
    }
+   .hits {
+      position: relative;
+   }
    .hit {
       font-size: 0.9em;
       display: flex;
       flex-flow: row nowrap;
       text-align: left;
       padding: 10px;
-      margin: 10px;
+      margin-bottom: 25px;
       border: 1px solid var(--uvalib-grey-light);
       border-radius: 5px;
       box-shadow: 0 1px 3px rgb(0 0 0 / 6%), 0 1px 2px rgb(0 0 0 / 12%);
