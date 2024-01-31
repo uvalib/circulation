@@ -11,6 +11,8 @@
     "@fortawesome/fontawesome-free": "^5.15.3",
     "axios": "^1.6.2",
     "pinia": "^2.1.7",
+    "primeicons": "^6.0.1",
+    "primevue": "^3.47.2",
     "vue": "^3.2.37",
     "vue-matomo": "^4.1.0",
     "vue-router": "^4.1.2"

@@ -13,14 +13,17 @@
             <template v-else>
                <td class="label">{{f.label}}(s):</td>
                <td class="data">
-                  <span class="selection" @click="showFacetValues(f.facet)">
-                     <span class="any" v-if="anySelected(f.facet) == false">
-                        Any
-                     </span>
-                     <template v-else>
-                        {{searchStore.facetSelections(f.facet).join(", ")}}
+                  <span class="selection">
+                     <template  v-if="anySelected(f.facet) == false">
+                        <span class="selections any">Any</span>
+                        <Button class="small" severity="secondary" @click="showFacetValues(f.facet)">Edit</Button>
+                        <!-- <span class="fake-link" @click="showFacetValues(f.facet)">[edit]</span> -->
                      </template>
-                     <span class="fake-link">[edit]</span>
+                     <template v-else>
+                        <span class="selections">{{searchStore.facetSelections(f.facet).join(", ")}}</span>
+                        <Button class="small" severity="danger" @click="clearFacetFilter(f.facet)">Clear</Button>
+                        <Button class="small" severity="secondary" @click="showFacetValues(f.facet)">Edit</Button>
+                     </template>
                   </span>
                </td>
             </template>
@@ -46,6 +49,9 @@ const anySelected = ( (facet) => {
    return searchStore.facetSelections(facet).length > 0
 })
 
+const clearFacetFilter = ( (f) => {
+   searchStore.clearAllFacetSelections(f)
+})
 const showFacetValues = ( ( facet ) => {
    emit("pick", props.name, facet)
 })
@@ -63,20 +69,29 @@ const showFacetValues = ( ( facet ) => {
    }
    table {
       width: 100%;
+      padding: 0 20px;
+
+      td {
+         padding: 5px 10px;
+         border-bottom: 1px solid var(--uvalib-grey-lightest);
+      }
+
       td.label {
-         padding: 2px 10px;
          text-align: right;
          width: 175px;
          font-weight: bold;
          vertical-align: text-top;
+         white-space: nowrap;
       }
    }
-   .fake-link {
+   .selections {
+      display: inline-block;
+      margin-right: 10px;
+   }
+   button.small {
+      font-size: 0.7em;
+      padding: 2px 10px;
       margin-left: 5px;
-      color: var(--color-link);
-      &:hover {
-         text-decoration: underline;
-      }
    }
    .subject-entry {
       width: 100%;
@@ -90,24 +105,10 @@ const showFacetValues = ( ( facet ) => {
       color: #aaa;
       font-style: italic;
    }
-   span.selection {
-      cursor: pointer;
-   }
    .note {
       font-size: .8em;
       font-style: italic;
       margin: 4px 0 10px 0;
-   }
-   .edit {
-      border: none;
-      background: transparent;
-      font-size: 1.1em;
-      color: var(--uvalib-grey);
-      margin-right: 10px;
-      cursor: pointer;
-      &:hover {
-         color: var(--uvalib-blue-alt);
-      }
    }
 }
 </style>

@@ -5,6 +5,7 @@ export const useSearchStore = defineStore('search', {
 	state: () => ({
       working: false,
       fatalError: "",
+      showMessage: false,
       message: "",
       facets: [],
       filter: [],
@@ -50,7 +51,9 @@ export const useSearchStore = defineStore('search', {
       facetLabel:  state => {
          return (section, facet) => {
             let sect = state.facets.find( sf => sf.section == section)
+            if ( !sect ) return ""
             let f = sect.facets.find( f => f.facet == facet)
+            if ( !f ) return ""
             return f.label
          }
       },
@@ -135,7 +138,12 @@ export const useSearchStore = defineStore('search', {
          this.sort = "checkout_date%20asc"
       },
       clearMessage() {
+         this.showMessage = false
          this.message = ""
+      },
+      setMessage( m ) {
+         this.message = m
+         this.showMessage = true
       },
       clearSearchHits() {
          this.totalHits = -1
@@ -162,16 +170,6 @@ export const useSearchStore = defineStore('search', {
          this.facets.push(currSection)
       },
 
-      selectAllFacetValues(tgtSection, tgtFacet) {
-         let allFacetVals = this.facetValues(tgtSection, tgtFacet)
-         let tgtFilter = this.filter.find( f => f.facet == tgtFacet)
-         if ( !tgtFilter ) {
-            this.filter.push( {facet: tgtFacet, values: allFacetVals } )
-         } else {
-            tgtFilter.values = allFacetVals
-         }
-      },
-
       clearAllFacetSelections(tgtFacet) {
          let filterIdx = this.filter.findIndex( f => f.facet == tgtFacet)
          if (filterIdx > -1) {
@@ -179,20 +177,15 @@ export const useSearchStore = defineStore('search', {
          }
       },
 
-      toggleFacetValue(tgtFacet, val) {
-         let tgtFilterIdx = this.filter.findIndex( f => f.facet == tgtFacet)
-         if ( tgtFilterIdx == -1 ) {
-            this.filter.push( {facet: tgtFacet, values: [val]} )
+      setFacetFilterValues(tgtFacet, selections) {
+         if ( selections.length == 0) {
+            this.clearAllFacetSelections(tgtFacet)
          } else {
-            let tgtFilter = this.filter[tgtFilterIdx]
-            let valIdx = tgtFilter.values.findIndex( fv => fv == val )
-            if ( valIdx > -1) {
-               tgtFilter.values.splice(valIdx, 1)
-               if ( tgtFilter.values.length == 0) {
-                  this.filter.splice(tgtFilterIdx, 1)
-               }
+            let tgtFilter = this.filter.find( f => f.facet == tgtFacet)
+            if ( tgtFilter ) {
+               tgtFilter.values = selections
             } else {
-               tgtFilter.values.push( val )
+               this.filter.push( {facet: tgtFacet, values: selections} )
             }
          }
       },
@@ -246,7 +239,7 @@ export const useSearchStore = defineStore('search', {
             }
             this.working =  false
          }).catch( error => {
-            this.message = error
+            this.setMessage(error)
             this.working =  false
          })
       }

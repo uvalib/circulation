@@ -5,9 +5,9 @@
       </h2>
       <div class="criteria">
          <div class="any" v-if="searchStore.dateCriteria.length == 0">
-             <span class="date-item time-label">Date:</span>
+            <span class="date-item time-label">Date:</span>
             <span>Any date</span>
-            <button class="add" @click="addDate">Add Date</button>
+            <Button class="add" @click="addDate">Add Date</Button>
          </div>
 
          <div v-for="(dc,idx) in searchStore.dateCriteria" :key="`date-criteria-${idx}`" class="date-row">
@@ -30,8 +30,8 @@
                   <input type="text" v-model="dc.endVal" :aria-label="`end date ${idx+1}`"/>
                </template>
             </span>
-            <button class="date-item del" @click="removeDate(idx)">Remove Date</button>
-            <button v-if="idx == (searchStore.dateCriteria.length-1)" class="add" @click="addDate">Add Date</button>
+            <Button severity="danger" class="date-item" @click="removeDate(idx)">Remove Date</Button>
+            <Button v-if="idx == (searchStore.dateCriteria.length-1)" class="add" @click="addDate">Add Date</Button>
          </div>
          <div class="pad-top date-hint"><b>Accepted date formats</b>: YYYY, YYYY-MM, YYYY-MM-DD</div>
       </div>
@@ -97,28 +97,6 @@ const setTimeRange = (() => {
       justify-content: space-between;
       align-items: center;
    }
-    button.add {
-      border-radius: 5px;
-      padding: 5px 10px;
-      font-weight: bold;
-   }
-   button.add {
-      background-color: var(--uvalib-brand-blue-light);
-      border: 1px solid var(--uvalib-brand-blue-light);
-      color: white;
-      &:hover {
-         background-color: var(--uvalib-brand-blue-lighter);
-      }
-   }
-   button.del {
-      background-color: #b22;
-      border: 1px solid #b22;
-      color: white;
-      font-weight: bold;
-      &:hover {
-         background-color: #d22;
-      }
-   }
    .date-hint {
       margin-bottom: 5px;
       color: var(--uvalib-grey);
@@ -168,8 +146,15 @@ const setTimeRange = (() => {
          width: 15px;
          height: 15px;
       }
-      .date-row {
+      .date-row, .any {
          margin-bottom: 10px;
+         display: flex;
+         flex-flow: row nowrap;
+         align-items: center;
+
+         button {
+            font-size: 0.8em;
+         }
 
          .date-label {
             display: inline-block;

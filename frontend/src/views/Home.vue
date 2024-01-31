@@ -26,13 +26,13 @@
                </select>
             </span>
             <span class="buttons">
-               <button class="main reset" @click="resetForm">Reset Form</button>
-               <button class="main generate" @click="search">Search</button>
+               <Button severity="secondary" class="main reset" @click="resetForm">Reset Form</Button>
+               <Button class="main generate" @click="search">Search</Button>
             </span>
             <div class="filler"></div>
          </div>
       </div>
-      <FacetPicker v-if="showPicker" :section="tgtSection" :facet="tgtFacet" @close="pickerClosed"/>
+      <FacetPicker :show="showPicker" :section="tgtSection" :facet="tgtFacet" @closed="pickerClosed"/>
    </div>
 </template>
 
@@ -176,6 +176,9 @@ const search = () => {
 .work {
    margin-top: 20px;
 }
+.search-form {
+   margin: 0 25px;
+}
 .error {
    font-size: 1.1em;
    font-style: italic;
@@ -195,7 +198,7 @@ const search = () => {
    }
    .toolbar {
       margin-top: 15px;
-      padding: 25px;
+      padding: 25px 0;
       border-top: 1px solid var(--uvalib-grey-light);
       position: relative;
       display: flex;

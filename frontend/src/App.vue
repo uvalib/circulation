@@ -17,15 +17,21 @@
       </div>
       <template v-else>
          <router-view />
-         <MessageBox />
          <ScrollToTop />
       </template>
    </div>
+   <Dialog v-model:visible="searchStore.showMessage" :modal="true" header="System Message"
+      @hide="searchStore.clearMessage()" >
+      {{searchStore.message}}
+      <template #footer>
+         <Button label="OK" autofocus class="p-button-secondary" @click="searchStore.clearMessage()"/>
+      </template>
+   </Dialog>
 </template>
 
 <script setup>
 import UvaLibraryLogo from "@/components/UvaLibraryLogo.vue"
-import MessageBox from "@/components/MessageBox.vue"
+import Dialog from 'primevue/dialog'
 import ScrollToTop from "@/components/ScrollToTop.vue"
 import { useSearchStore } from '@/stores/search'
 

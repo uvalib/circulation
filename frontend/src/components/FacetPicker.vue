@@ -1,39 +1,43 @@
 <template>
-   <div class="picker-dimmer">
-      <div role="dialog" class="picker-dialog" @keyup.esc.prevent.stop="closePicker">
-         <div class="title">
-            <span>{{props.section}} : {{searchStore.facetLabel(props.section, props.facet)}}</span>
-            <button @click="closePicker" class="close-btn"><i class="fas fa-window-close"></i></button>
-         </div>
-         <div class="finder" v-if="showFinder">
-            <label for="facet-query">Find:</label>
-            <input type="text" id="facet-query" v-model="query" @input="queryTyped" @keyup.enter.prevent.stop="querySelected" autofocus />
-         </div>
-         <div class="scroller">
-            <div class="val" v-for="val in searchStore.facetValues(props.section, props.facet)" :key="val">
-               <label tabindex="-1" :for="`${val}-cb`" :id="val" class="facet-val">
-                  <input :id="`${val}-cb`" class="cb" type="checkbox" @change="valueToggled(val)" :checked="searchStore.isFacetValueSelected(props.facet, val)">{{val}}
-               </label>
+   <Dialog v-model:visible="props.show" :modal="true" @show="pickerOpened"
+      :header="`${props.section}: ${searchStore.facetLabel(props.section, props.facet)}`"
+      @hide="closePicker" :closable="false"
+   >
+      <Listbox v-model="selections" :options="facetValues" multiple optionLabel="label" optionValue="value" filter class="w-full md:w-14rem" />
+      <div class="selections">
+         <b>Selected:</b>
+         <span>{{ selectionsDisplay }}</span>
+      </div>
+      <template #footer>
+         <div class="toolbar">
+            <div>
+               <Button severity="secondary" class="right-pad" @click="selectAll">Select All</Button>
+               <Button severity="secondary" @click="clearAll">Clear All</Button>
+            </div>
+            <div>
+               <Button severity="secondary" class="right-pad" @click="closePicker">Cancel</Button>
+               <Button severity="primary" @click="applySelections">Apply</Button>
             </div>
          </div>
-         <div class="toolbar">
-            <button class="ok right-pad" @click="selectAll">Select All</button>
-            <button class="ok right-pad" @click="clearAll">Clear All</button>
-            <button class="ok" @click="closePicker">OK</button>
-         </div>
-      </div>
-   </div>
+      </template>
+   </Dialog>
 </template>
 
 <script setup>
 import { useSearchStore } from '@/stores/search'
-import { ref } from 'vue'
+import Dialog from 'primevue/dialog'
+import Listbox from 'primevue/listbox'
+import { ref, computed } from 'vue'
 
 const searchStore = useSearchStore()
-const query = ref("")
+const selections = ref([])
 
-const emit = defineEmits( ['close' ])
+const emit = defineEmits( ['closed' ])
 const props = defineProps({
+   show: {
+      type: Boolean,
+      required: true
+   },
    section: {
       type: String,
       required: true
@@ -44,146 +48,58 @@ const props = defineProps({
    }
 })
 
-const showFinder = (() => {
-   let len = searchStore.facetValues(props.section, props.facet).length
-   return len > 15
+const pickerOpened = ( () => {
+   selections.value = searchStore.facetSelections(props.facet)
 })
 
-const queryTyped = (() => {
-   let val = searchStore.findFacetValue(props.section, props.facet, query.value)
-   if (val) {
-      let eles = document.getElementsByClassName("facet-val")
-      for (let i = 0; i < eles.length; i++) {
-         eles[i].classList.remove('curr-facet-val')
-      }
-      let tgt = document.getElementById(val)
-      if (tgt) {
-         tgt.scrollIntoView()
-         tgt.classList.add("curr-facet-val")
-      }
-   }
+const facetValues = computed( () => {
+   let out = []
+   searchStore.facetValues(props.section, props.facet).forEach( v => {
+      out.push({label: v, value: v})
+   })
+   return out
 })
 
-const querySelected = (() => {
-   let eles = document.getElementsByClassName("curr-facet-val")
-   if (eles.length > 0) {
-      let tgtVal = eles[0].id
-      searchStore.toggleFacetValue(props.facet, tgtVal)
-   }
+const selectionsDisplay = computed( () => {
+   if (selections.value.length == 0) return "None"
+   return selections.value.join(", ")
+})
+
+const applySelections = ( () => {
+   searchStore.setFacetFilterValues( props.facet, selections.value )
+   closePicker()
 })
 
 const closePicker = (() => {
-   emit("close")
+   emit("closed")
 })
 
 const clearAll = (() => {
-   searchStore.clearAllFacetSelections(props.facet)
+   selections.value = []
 })
 
 const selectAll = (() => {
-   searchStore.selectAllFacetValues(props.section, props.facet)
-})
-
-const valueToggled = ( (val) => {
-   searchStore.toggleFacetValue(props.facet, val)
+   selections.value = searchStore.facetValues(props.section, props.facet)
 })
 </script>
 
 <style lang="scss" scoped>
-.picker-dimmer {
-   position: fixed;
-   left: 0;
-   top: 0;
-   width: 100%;
-   height: 100%;
-   z-index: 1000;
-   background: rgba(0, 0, 0, 0.2);
-   .finder {
-      display:flex;
-      flex-flow: row nowrap;
-      justify-content: flex-start;
-      align-items: center;
-      padding: 10px 10px 0 10px;
-      input {
-         border:1px solid var(--uvalib-grey-light);
-         padding: 4px;
-         flex-grow: 1;
-         box-sizing: border-box;
-         border-radius: 5px;
-      }
-      label {
-         margin: 0 5px 0 0;
-         font-weight: bold;
-      }
-   }
-   .picker-dialog {
-      color: var(--uvalib-text);
-      position: fixed;
-      height: auto;
-      z-index: 8000;
-      background: white;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-      border-radius: 5px;
-      min-width: 300px;
-      word-break: break-word;
-
-      label.facet-val.curr-facet-val {
-         color: var(--uvalib-blue-alt);
-         text-decoration: underline;
-      }
-
-      .title {
-         background:  var(--uvalib-blue-alt-light);
-         font-size: 1.1em;
-         color: var(--uvalib-text-dark);
-         font-weight: 500;
-         padding: 5px 5px 5px 10px;
-         border-radius: 5px 5px 0 0;
-         border-bottom: 2px solid  var(--uvalib-blue-alt);
-         text-align: left;
-         display: flex;
-         flex-flow: row nowrap;
-         justify-content: space-between;
-         .close-btn {
-            background: transparent;
-            border: none;
-            padding: 0;
-            font-size: 1.2em;
-            cursor: pointer;
-            color: var(--uvalib-blue-alt-dark);
-            &:hover {
-               color: var(--uvalib-blue-alt);
-            }
-         }
-      }
-      .scroller {
-         max-height: 300px;
-         overflow: scroll;
-         padding: 10px;
-         margin:  10px;
-         border: 1px solid var(--uvalib-grey-light);
-         border-radius: 4px;
-         .val {
-            text-align: left;
-            label {
-               cursor: pointer;
-            }
-            .cb {
-               margin-right: 10px;
-               cursor:pointer;
-            }
-         }
-      }
-      .toolbar {
-         text-align: right;
-         padding: 0 10px 10px 10px;
-         .right-pad {
-            margin-right: 10px;
-         }
-      }
+.selections {
+   margin: 15px 0 5px 0;
+   font-size: 0.8em;
+   b {
+      display: inline-block;
+      margin-right: 10px;
    }
 }
+.toolbar {
+   display: flex;
+   flex-flow: row nowrap;
+   justify-content: space-between;
+   width: 100%;
+   button.right-pad {
+      margin-right: 10px;
+   }
+}
+
 </style>
