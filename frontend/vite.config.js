@@ -22,6 +22,10 @@
              target: process.env.CIRC_SRV,  //export CIRC_SRV=http://localhost:8085
              changeOrigin: true
           },
+          '/authenticate': {
+            target: process.env.CIRC_SRV,
+            changeOrigin: true
+          },
           '/healthcheck': {
              target: process.env.CIRC_SRV,
              changeOrigin: true

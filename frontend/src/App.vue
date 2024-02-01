@@ -8,6 +8,10 @@
          </div>
          <div class="site-link">
             <router-link to="/">Circulation</router-link>
+            <div v-if="searchStore.computeID" class="signedin">
+               <span class="label">User:</span>
+               <span>{{ searchStore.computeID }}</span>
+            </div>
          </div>
       </div>
       <div v-if="searchStore.fatalError" class="fatal-err">
@@ -72,6 +76,15 @@ div.header {
       order: 0;
       flex: 0 1 auto;
       align-self: flex-start;
+   }
+   .signedin {
+      .label {
+         display: inline-block;
+         margin-right: 5px;
+         font-weight: bold;
+      }
+      margin-top: 5px;
+      font-size: 0.6em;
    }
    div.site-link {
       order: 0;

@@ -1,6 +1,5 @@
 <template>
    <div class="home">
-      <div class="compatibility"><b>NOTE:</b> This site has compatibility issues with Chrome. Please use Firefox instead.</div>
       <h1>
          <span>Search User Circulation Data</span>
          <div class="help">

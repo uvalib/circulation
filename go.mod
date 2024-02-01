@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/bytedance/sonic v1.10.2 // indirect
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/cors v1.5.0
 	github.com/gin-contrib/gzip v0.0.6

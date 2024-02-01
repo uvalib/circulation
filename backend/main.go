@@ -29,10 +29,11 @@ func main() {
 	// Set routes and start server
 	router.GET("/version", svc.getVersion)
 	router.GET("/healthcheck", svc.healthCheck)
+	router.GET("/authenticate", svc.authenticate)
 	api := router.Group("/api")
 	{
-		api.GET("/facets", svc.userMiddleware, svc.getFacets)
-		api.POST("/search", svc.userMiddleware, svc.searchHandler)
+		api.GET("/facets", svc.authMiddleware, svc.getFacets)
+		api.POST("/search", svc.authMiddleware, svc.searchHandler)
 	}
 
 	// Note: in dev mode, this is never actually used. The front end is served

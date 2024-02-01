@@ -11,6 +11,8 @@ type configData struct {
 	solrCore    string
 	csvPageSize int
 	csvMax      uint
+	devAuthUser string
+	jwtKey      string
 }
 
 func getConfiguration() *configData {
@@ -20,12 +22,21 @@ func getConfiguration() *configData {
 	flag.StringVar(&config.solrCore, "solrcore", "user_data_core", "Solr Core")
 	flag.IntVar(&config.csvPageSize, "csvpage", 1000, "page size for CSV requests (default 1000)")
 	flag.UintVar(&config.csvMax, "csvmax", 100000, "max size for CSV export (default 100000)")
+	flag.StringVar(&config.devAuthUser, "devuser", "", "Authorized computing id for dev")
+	flag.StringVar(&config.jwtKey, "jwtkey", "", "JWT signature key")
 	flag.Parse()
+
+	if config.jwtKey == "" {
+		log.Fatal("Parameter jwtkey is required")
+	}
 
 	log.Printf("[CONFIG] port          = [%d]", config.port)
 	log.Printf("[CONFIG] solrURL       = [%s]", config.solrURL)
 	log.Printf("[CONFIG] solrCore      = [%s]", config.solrCore)
 	log.Printf("[CONFIG] csvpage       = [%d]", config.csvPageSize)
 	log.Printf("[CONFIG] csvmax        = [%d]", config.csvMax)
+	if config.devAuthUser != "" {
+		log.Printf("[CONFIG] devuser       = [%s]", config.devAuthUser)
+	}
 	return &config
 }

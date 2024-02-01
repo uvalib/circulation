@@ -54,6 +54,8 @@ type serviceContext struct {
 	SolrCore         string
 	CSVPageSize      int
 	CSVMaxRows       uint
+	JWTKey           string
+	DevAuthUser      string
 	HTTPClient       *http.Client
 	ExportHTTPClient *http.Client
 	SolrMappings     []solrMapping
@@ -61,8 +63,13 @@ type serviceContext struct {
 
 // InitializeService sets up the service context for all API handlers
 func initializeService(version string, cfg *configData) *serviceContext {
-	ctx := serviceContext{Version: version, SolrURL: cfg.solrURL, SolrCore: cfg.solrCore,
-		CSVPageSize: cfg.csvPageSize, CSVMaxRows: cfg.csvMax}
+	ctx := serviceContext{Version: version,
+		SolrURL:     cfg.solrURL,
+		SolrCore:    cfg.solrCore,
+		CSVPageSize: cfg.csvPageSize,
+		CSVMaxRows:  cfg.csvMax,
+		JWTKey:      cfg.jwtKey,
+		DevAuthUser: cfg.devAuthUser}
 
 	log.Printf("INFO: create HTTP clients...")
 	defaultTransport := &http.Transport{

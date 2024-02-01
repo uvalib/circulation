@@ -1,8 +1,20 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 
+function parseJwt(token) {
+   var base64Url = token.split('.')[1]
+   var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+   var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+   }).join(''))
+
+   return JSON.parse(jsonPayload);
+}
+
 export const useSearchStore = defineStore('search', {
 	state: () => ({
+      jwt: "",
+      computeID: "",
       working: false,
       fatalError: "",
       showMessage: false,
@@ -201,6 +213,45 @@ export const useSearchStore = defineStore('search', {
             this.setFatalError(error)
             this.working =  false
          })
+      },
+
+      setJWT(jwt) {
+         if (jwt != this.jwt) {
+            this.jwt = jwt
+            localStorage.setItem("cq_jwt", jwt)
+
+            let parsed = parseJwt(jwt)
+            this.computeID = parsed.computeID
+
+            // add interceptor to put bearer token in header
+            axios.interceptors.request.use(config => {
+               config.headers['Authorization'] = 'Bearer ' + jwt
+               return config
+            }, error => {
+               return Promise.reject(error)
+            })
+
+            // Catch 401 errors and redirect to an expired auth page
+            axios.interceptors.response.use(
+               res => res,
+               err => {
+                  console.log("failed response for "+err.config.url)
+                  console.log(err)
+                  if (err.config.url.match(/\/authenticate/)) {
+                     this.router.push("/forbidden")
+                  } else {
+                     if (err.response && err.response.status == 401) {
+                        localStorage.removeItem("cq_jwt")
+                        this.jwt = ""
+                        this.computeID = ""
+                        this.router.push("/expired")
+                        return new Promise(() => { })
+                     }
+                  }
+                  return Promise.reject(err)
+               }
+            )
+         }
       },
 
       search(mode) {
