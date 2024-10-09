@@ -42,7 +42,7 @@
       <div class="criteria time">
          <div class="row">
             <span class="date-item date-label">Time:</span>
-            <SelectButton v-model="timeType" :options="['All Day', 'Time Range']" @update:modelValue="timeTypeChanged"/>
+            <SelectButton v-model="searchStore.timeMode" :options="timeOpts" optionLabel="label" optionValue="value" @update:modelValue="timeTypeChanged" :allowEmpty="false"/>
             <div v-if="searchStore.allDay==false">
                <InputText v-model="searchStore.timeStart" aria-label="start time"/>
                <span class="sep">-</span>
@@ -55,26 +55,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useSearchStore } from '@/stores/search'
 import SelectButton from 'primevue/selectbutton'
 import InputText from 'primevue/inputtext'
 
 const searchStore = useSearchStore()
-const timeType = ref("All Day")
+const timeOpts = ref([{label:'All Day', value:"any"}, {label:'Time Range', value:"range"}])
 
-onMounted(() => {
-   timeType.value = "Time Range"
-   if ( searchStore.allDay == true) {
-      timeType.value = "All Day"
-   }
-})
 const timeTypeChanged = (() => {
-   if (timeType.value == "All Day") {
-      searchStore.allDay = true
-   } else {
-      searchStore.allDay = false
-   }
    searchStore.timeStart = ""
    searchStore.timeEnd = ""
 })

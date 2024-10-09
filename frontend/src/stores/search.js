@@ -15,7 +15,7 @@ export const useSearchStore = defineStore('search', {
       dateCriteria: [],
       timeStart: "",
       timeEnd: "",
-      allDay: true,
+      timeMode: "any",
       subjectQuery: "",
       page: 0,
       pageSize: 50,
@@ -25,6 +25,9 @@ export const useSearchStore = defineStore('search', {
       sort: "checkout_date%20asc"
    }),
 	getters: {
+      allDay: state => {
+         return state.timeMode == "any"
+      },
       sectionFacets:  state => {
          return (section) => {
             let sect = state.facets.find( sf => sf.section == section)
@@ -135,7 +138,7 @@ export const useSearchStore = defineStore('search', {
          this.filter = []
          this.timeStart = ""
          this.timeEnd = ""
-         this.allDay = true
+         this.timeMode = "any"
          this.subjectQuery = ""
          this.dateCriteria.splice(0, this.dateCriteria.length)
          this.sort = "checkout_date%20asc"
