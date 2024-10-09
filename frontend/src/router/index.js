@@ -1,31 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '@/views/Home.vue'
-import Results from '@/views/Results.vue'
-import Forbidden from '@/views/Forbidden.vue'
-import Expired from '@/views/Expired.vue'
-import VueCookies from 'vue-cookies'
+import { useCookies } from '@vueuse/integrations/useCookies'
 import { useSearchStore } from '@/stores/search'
 
 const routes = [
    {
       path: '/',
       name: 'home',
-      component: Home
+      component: () => import('../views/Home.vue')
    },
    {
       path: '/results',
       name: 'results',
-      component: Results
+      component: () => import('../views/Results.vue')
    },
    {
       path: '/forbidden',
       name: 'forbidden',
-      component: Forbidden
+      component: () => import('../views/Forbidden.vue')
    },
    {
       path: '/expired',
       name: 'expired',
-      component: Expired
+      component: () => import('../views/Expired.vue')
    },
 ]
 
@@ -36,8 +32,10 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
    const searchStore = useSearchStore()
+   const cookies = useCookies()
+
    if (to.path === '/granted') {
-      let jwtStr = VueCookies.get("cq_jwt")
+      const jwtStr = cookies.get("cq_jwt")
       searchStore.setJWT(jwtStr)
       next("/")
    } else if (to.name !== 'forbidden' && to.name !== "expired") {
@@ -46,7 +44,6 @@ router.beforeEach((to, _from, next) => {
          searchStore.setJWT(jwtStr)
          next()
       } else {
-         console.log("AUTH..")
          window.location.href = "/authenticate"
       }
    } else {

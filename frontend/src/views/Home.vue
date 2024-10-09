@@ -3,7 +3,7 @@
       <h1>
          <span>Search User Circulation Data</span>
          <div class="help">
-            <a href="https://confluence.its.virginia.edu/display/UDR/Circulation+Data+Search+Application+Information" target="_blank"><i class="icon far fa-question-circle"></i>Search Help</a>
+            <Button as="a" link label="Search Help" icon="pi pi-question-circle" href="https://confluence.its.virginia.edu/display/UDR/Circulation+Data+Search+Application+Information" target="_blank"/>
          </div>
       </h1>
       <div class="work" v-if="searchStore.working" >
@@ -202,38 +202,17 @@ const search = () => {
       .filler {
          flex-grow: .3;
       }
-      .sort-control {
-         display: inline-block;
+      .sort-control, .buttons {
+         display: flex;
+         flex-flow: row nowrap;
+         gap: 10px;
+         justify-content: flex-start;
+         align-items: center;
          label {
             font-weight: bold;
-            margin-right: 10px;
          }
          select {
             padding: 5px;
-         }
-      }
-      button.main {
-         font-size: 1.1em;
-         font-weight: 100;
-         padding: 10px 20px;
-         border-radius: 5px;
-         cursor: pointer;
-         background-color: var(--uvalib-grey-lightest);
-         border: 1px solid var(--uvalib-grey);
-         color: var(--uvalib-text);
-         &:hover {
-            background-color: var(--uvalib-grey-light);
-         }
-      }
-      button.main.reset {
-         margin-right: 15px;
-      }
-      button.main.generate {
-         background-color: var(--uvalib-brand-blue-light);
-         border: 1px solid var(--uvalib-brand-blue-light);
-         color: white;
-         &:hover {
-            background-color: var(--uvalib-brand-blue-lighter);
          }
       }
    }

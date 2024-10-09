@@ -9,6 +9,15 @@
    }
 }
 
+.p-togglebutton.p-togglebutton-checked::before  {
+   background: var(--uvalib-brand-blue-light) !important;
+}
+.p-togglebutton.p-togglebutton-checked  {
+   span.p-togglebutton-label {
+      color: white !important;
+   }
+}
+
 .sticky {
    position: fixed;
    z-index: 1000;

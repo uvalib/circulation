@@ -3,11 +3,13 @@
       <h2>
          <span>Date / Time</span>
       </h2>
-      <div class="criteria">
+      <div class="criteria date">
          <div class="any" v-if="searchStore.dateCriteria.length == 0">
-            <span class="date-item time-label">Date:</span>
-            <span>Any date</span>
-            <Button class="add" @click="addDate">Add Date</Button>
+            <span class="date-label">Date:</span>
+            <div class="controls">
+               <span>Any date</span>
+               <Button size="small" @click="addDate">Add Date</Button>
+            </div>
          </div>
 
          <div v-for="(dc,idx) in searchStore.dateCriteria" :key="`date-criteria-${idx}`" class="date-row">
@@ -16,7 +18,8 @@
                <option value="OR">OR</option>
                <option value="NOT">NOT</option>
             </select>
-            <span class="date-item date-label">Date</span>
+            <span v-if="idx == 0" class="date-item date-label">Date:</span>
+            <span v-else>Date</span>
             <select class="date-item date-range-type" v-model="dc.comparison" :aria-label="`date comparision mode for date ${idx+1}`">
                <option value="EQUAL">IS</option>
                <option value="AFTER">AFTER</option>
@@ -24,42 +27,56 @@
                <option value="BETWEEN">BETWEEN</option>
             </select>
             <span class="date-criteria date-item">
-               <input type="text" class="date-item" v-model="dc.value" :aria-label="`search date number ${idx+1}`"/>
+               <InputText v-model="dc.value" :aria-label="`search date number ${idx+1}`"/>
                <template v-if="dc.comparison == 'BETWEEN'">
-                  <span class="date-item">AND</span>
-                  <input type="text" v-model="dc.endVal" :aria-label="`end date ${idx+1}`"/>
+                  <span class="sep">AND</span>
+                  <InputText v-model="dc.endVal" :aria-label="`end date ${idx+1}`"/>
                </template>
             </span>
-            <Button severity="danger" class="date-item" @click="removeDate(idx)">Remove Date</Button>
-            <Button v-if="idx == (searchStore.dateCriteria.length-1)" class="add" @click="addDate">Add Date</Button>
+            <Button size="small" severity="danger" class="date-item" @click="removeDate(idx)">Remove Date</Button>
+            <Button v-if="idx == (searchStore.dateCriteria.length-1)"  size="small" @click="addDate">Add Date</Button>
          </div>
-         <div class="pad-top date-hint"><b>Accepted date formats</b>: YYYY, YYYY-MM, YYYY-MM-DD</div>
+         <div v-if="searchStore.dateCriteria.length > 0" class="date-hint"><b>Accepted date formats</b>: YYYY, YYYY-MM, YYYY-MM-DD</div>
       </div>
+
       <div class="criteria time">
-         <span class="date-item time-label">Time:</span>
-         <label date-item><input type="radio" name="time-mode" class="time-mode" :checked="searchStore.allDay" @click="setTimeAllDay">All day</label>
-         <span class="date-item time-range">
-            <label class="date-item"><input type="radio" name="time-mode"  class="time-mode" :checked="!searchStore.allDay"  @click="setTimeRange">Time Range</label>
-            <input type="text" class="date-item" v-model="searchStore.timeStart" @keyup="timeChanged" aria-label="start time"/>
-            <span class="date-item">-</span>
-            <input type="text" class="date-item" v-model="searchStore.timeEnd" @keyup="timeChanged" aria-label="end time"/>
-         </span>
-         <div class="pad-top date-hint"><b>Accepted time format</b>: HH:MM (24hr)</div>
+         <div class="row">
+            <span class="date-item date-label">Time:</span>
+            <SelectButton v-model="timeType" :options="['All Day', 'Time Range']" @update:modelValue="timeTypeChanged"/>
+            <div v-if="searchStore.allDay==false">
+               <InputText v-model="searchStore.timeStart" aria-label="start time"/>
+               <span class="sep">-</span>
+               <InputText v-model="searchStore.timeEnd" aria-label="end time" />
+            </div>
+         </div>
+         <div v-if="searchStore.allDay==false" class="date-hint"><b>Accepted time format</b>: HH:MM (24hr)</div>
       </div>
    </div>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useSearchStore } from '@/stores/search'
+import SelectButton from 'primevue/selectbutton'
+import InputText from 'primevue/inputtext'
 
 const searchStore = useSearchStore()
+const timeType = ref("All Day")
 
-const timeChanged = (() => {
-   if (searchStore.timeStart != "" || searchStore.timeEnd != "") {
-      searchStore.allDay = false
-   } else {
-      setTimeAllDay()
+onMounted(() => {
+   timeType.value = "Time Range"
+   if ( searchStore.allDay == true) {
+      timeType.value = "All Day"
    }
+})
+const timeTypeChanged = (() => {
+   if (timeType.value == "All Day") {
+      searchStore.allDay = true
+   } else {
+      searchStore.allDay = false
+   }
+   searchStore.timeStart = ""
+   searchStore.timeEnd = ""
 })
 
 const addDate = ( () => {
@@ -68,18 +85,6 @@ const addDate = ( () => {
 
 const removeDate = ( (idx) => {
    searchStore.removeDate(idx)
-})
-
-const setTimeAllDay = (() => {
-   searchStore.allDay = true
-   searchStore.timeStart = ""
-   searchStore.timeEnd = ""
-})
-
-const setTimeRange = (() => {
-   searchStore.allDay = false
-   searchStore.timeStart = ""
-   searchStore.timeEnd = ""
 })
 </script>
 
@@ -103,62 +108,49 @@ const setTimeRange = (() => {
       font-style: italic;
       font-size: 0.9em;
    }
-   .pad-top {
-      margin-top: 15px;
-   }
    .criteria.time {
       margin-top: 15px;
       border-top: 1px solid var(--uvalib-grey-light);
       padding-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      .row {
+         display: flex;
+         flex-flow: row nowrap;
+         align-items: center;
+         justify-content: flex-start;
+         gap: 20px;
+      }
    }
    .criteria {
       margin: 0 0 10px 20px;
-      .date-item {
-         margin-right: 10px;
+      .sep {
+         display: inline-block;
+         padding: 0 5px;
+      }
+      .controls {
+         display: flex;
+         flex-flow: row nowrap;
+         align-items: center;
+         gap: 20px;
       }
       select {
          padding: 5px 10px;
          border: 1px solid var(--uvalib-grey);
          border-radius: 3px;
       }
-      input, button {
-         padding: 6px 10px;
-         border: 1px solid var(--uvalib-grey);
-         border-radius: 3px;
-      }
-      button {
-         margin-left: 10px;
-      }
-      .time-label {
-         margin-right: 25px;
+      .date-label {
          font-weight: bold;
-         width: 75px;
          text-align: right;
          display: inline-block;
-      }
-      .time-range {
-         display: inline-block;
-         margin-left: 30px;
-      }
-      input.time-mode {
-         padding: 5px 0;
-         margin: 0px 10px 0px 0;
-         width: 15px;
-         height: 15px;
       }
       .date-row, .any {
          margin-bottom: 10px;
          display: flex;
          flex-flow: row nowrap;
          align-items: center;
-
-         button {
-            font-size: 0.8em;
-         }
-
-         .date-label {
-            display: inline-block;
-         }
+         gap: 10px;
       }
    }
 }

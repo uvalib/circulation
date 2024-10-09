@@ -6,7 +6,7 @@
       </div>
       <template v-else>
          <WaitSpinner  v-if="searchStore.working && searchStore.hits.length > 0" :message="waitMessage" :overlay="true"/>
-         <div class="toolbar">
+         <div class="toolbar" id="toolbar">
             <span class="controls">
                <Button size="small" @click="refineClicked">Refine Search</button>
                <Button size="small" @click="newClicked">New Search</button>
@@ -16,7 +16,7 @@
                Showing {{searchStore.hits.length}} of {{searchStore.totalHits}} results
             </span>
          </div>
-         <div class="hits">
+         <div class="hits" id="hits">
             <div class="hit" v-for="(hit,idx) in searchStore.hits" :key="`hit-${idx}`">
                <span class="num">{{idx+1}}.</span>
                <span class="data">
@@ -47,7 +47,7 @@ import { useRouter } from 'vue-router'
 import { useSearchStore } from '@/stores/search'
 import { usePinnable } from '@/composables/pin'
 
-usePinnable("toolbar", "hits", 25)
+usePinnable("toolbar", "hits")
 
 const searchStore = useSearchStore()
 const router = useRouter()
@@ -124,7 +124,6 @@ const formatData = (( field ) => {
    }
    .toolbar {
       padding: 10px;
-      margin: 0 0 25px 0;
       background: var(--uvalib-grey-lightest);
       display: flex;
       flex-flow: row nowrap;
@@ -139,7 +138,8 @@ const formatData = (( field ) => {
       }
    }
    .hits {
-      padding: 5px 30px;
+      padding: 30px;
+      position: relative;
    }
    .hit {
       font-size: 0.9em;

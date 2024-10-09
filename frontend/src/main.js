@@ -3,7 +3,6 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import VueMatomo from 'vue-matomo'
-import '@fortawesome/fontawesome-free/css/all.css'
 import './assets/theme/uva-colors.css'
 import './assets/theme/styleoverrides.scss'
 
@@ -25,6 +24,7 @@ app.use(VueMatomo, {
 import PrimeVue from 'primevue/config'
 import UVA from './assets/theme/uva'
 import Button from 'primevue/button'
+import 'primeicons/primeicons.css'
 
 app.use(PrimeVue, {
    theme: {
