@@ -89,7 +89,7 @@ const setTimeRange = (() => {
    h2 {
       font-size: 1.15em;
       background-color: var(--uvalib-grey-lightest);
-      padding: 5px 10px;
+      padding: 10px 15px;
       border-bottom: 1px solid var(--uvalib-grey-light);
       border-top: 1px solid var(--uvalib-grey-light);
       display: flex;

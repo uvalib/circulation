@@ -42,10 +42,8 @@ import WaitSpinner from "@/components/WaitSpinner.vue"
 import FacetPicker from "@/components/FacetPicker.vue"
 import { useSearchStore } from '@/stores/search'
 import { ref, onBeforeMount } from 'vue'
-import { useRoute } from 'vue-router'
 
 const searchStore = useSearchStore()
-const route = useRoute()
 
 const waitMessage = ref("Initializing system...")
 const queryError = ref("")
@@ -175,9 +173,6 @@ const search = () => {
 .work {
    margin-top: 20px;
 }
-.search-form {
-   margin: 0 25px;
-}
 .error {
    font-size: 1.1em;
    font-style: italic;
@@ -197,7 +192,7 @@ const search = () => {
    }
    .toolbar {
       margin-top: 15px;
-      padding: 25px 0;
+      padding: 25px 20px;
       border-top: 1px solid var(--uvalib-grey-light);
       position: relative;
       display: flex;

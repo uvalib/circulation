@@ -21,7 +21,7 @@
       </div>
       <template v-else>
          <router-view />
-         <ScrollToTop />
+         <ScrollTop />
       </template>
    </div>
    <Dialog v-model:visible="searchStore.showMessage" :modal="true" header="System Message"
@@ -36,7 +36,7 @@
 <script setup>
 import UvaLibraryLogo from "@/components/UvaLibraryLogo.vue"
 import Dialog from 'primevue/dialog'
-import ScrollToTop from "@/components/ScrollToTop.vue"
+import ScrollTop from 'primevue/scrolltop'
 import { useSearchStore } from '@/stores/search'
 
 const searchStore = useSearchStore()

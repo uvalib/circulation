@@ -2,32 +2,35 @@
    <div class="section">
       <h2>{{props.name}}</h2>
       <table>
-         <tr class="option" v-for="f in searchStore.sectionFacets(name)" :key="f.facet">
-            <template v-if="f.filterType=='subject'">
-               <td class="label">{{f.label}}:</td>
-               <td class="data">
-                  <input class="subject-entry" v-model="searchStore.subjectQuery">
-                  <div class="note">Enter one or more subject names separated by AND/OR. Wilidard * is accepted. No entry matches any subject. Example: argent* AND history</div>
-               </td>
-            </template>
-            <template v-else>
-               <td class="label">{{f.label}}(s):</td>
-               <td class="data">
-                  <span class="selection">
-                     <template  v-if="anySelected(f.facet) == false">
-                        <span class="selections any">Any</span>
-                        <Button class="small" severity="secondary" @click="showFacetValues(f.facet)">Edit</Button>
-                        <!-- <span class="fake-link" @click="showFacetValues(f.facet)">[edit]</span> -->
-                     </template>
-                     <template v-else>
-                        <span class="selections">{{searchStore.facetSelections(f.facet).join(", ")}}</span>
-                        <Button class="small" severity="danger" @click="clearFacetFilter(f.facet)">Clear</Button>
-                        <Button class="small" severity="secondary" @click="showFacetValues(f.facet)">Edit</Button>
-                     </template>
-                  </span>
-               </td>
-            </template>
-         </tr>
+         <tbody>
+            <tr class="option" v-for="f in searchStore.sectionFacets(name)" :key="f.facet">
+               <template v-if="f.filterType=='subject'">
+                  <td class="label">{{f.label}}:</td>
+                  <td class="data">
+                     <input class="subject-entry" v-model="searchStore.subjectQuery">
+                     <div class="note">Enter one or more subject names separated by AND/OR. Wilidard * is accepted. No entry matches any subject. Example: argent* AND history</div>
+                  </td>
+               </template>
+               <template v-else>
+                  <td class="label">{{f.label}}(s):</td>
+                  <td class="data">
+                     <span class="selection">
+                        <template  v-if="anySelected(f.facet) == false">
+                           <span class="selections any">Any</span>
+                           <Button size="small" severity="secondary" @click="showFacetValues(f.facet)">Edit</Button>
+                        </template>
+                        <template v-else>
+                           <span class="selections">{{searchStore.facetSelections(f.facet).join(", ")}}</span>
+                           <span class="controls">
+                              <Button size="small" severity="danger" @click="clearFacetFilter(f.facet)">Clear</Button>
+                              <Button size="small" severity="secondary" @click="showFacetValues(f.facet)">Edit</Button>
+                           </span>
+                        </template>
+                     </span>
+                  </td>
+               </template>
+            </tr>
+         </tbody>
       </table>
    </div>
 </template>
@@ -63,9 +66,21 @@ const showFacetValues = ( ( facet ) => {
    h2 {
       font-size: 1.15em;
       background-color: var(--uvalib-grey-lightest);
-      padding: 5px 10px;
+      padding: 10px 15px;
       border-bottom: 1px solid var(--uvalib-grey-light);
       border-top: 1px solid var(--uvalib-grey-light);
+   }
+   .selection {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: flex-start;
+      align-items: flex-start;
+      gap: 20px;
+      .controls {
+         display: flex;
+         flex-flow: row nowrap;
+         gap: 5px;
+      }
    }
    table {
       width: 100%;
@@ -87,11 +102,6 @@ const showFacetValues = ( ( facet ) => {
    .selections {
       display: inline-block;
       margin-right: 10px;
-   }
-   button.small {
-      font-size: 0.7em;
-      padding: 2px 10px;
-      margin-left: 5px;
    }
    .subject-entry {
       width: 100%;

@@ -3,24 +3,13 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import VueMatomo from 'vue-matomo'
-import PrimeVue from 'primevue/config'
-import Button from 'primevue/button'
+import '@fortawesome/fontawesome-free/css/all.css'
+import './assets/theme/uva-colors.css'
+import './assets/theme/styleoverrides.scss'
 
 const app = createApp(App)
 
-const pinia = createPinia()
-pinia.use(({ store }) => {
-   // all stores can access router with this.router
-   store.router = markRaw(router)
-})
-
-app.use(pinia)
 app.use(router)
-app.use(PrimeVue, { ripple: true })
-app.component("Button", Button)
-
-import 'primevue/resources/themes/saga-blue/theme.css'
-import 'primeicons/primeicons.css'
 
 app.use(VueMatomo, {
    host: 'https://analytics.lib.virginia.edu',
@@ -32,9 +21,31 @@ app.use(VueMatomo, {
    debug: true,
 })
 
-import '@fortawesome/fontawesome-free/css/all.css'
-import './assets/styles/uva-colors.css'
-import './assets/styles/styleoverrides.scss'
+// Primevue setup
+import PrimeVue from 'primevue/config'
+import UVA from './assets/theme/uva'
+import Button from 'primevue/button'
+
+app.use(PrimeVue, {
+   theme: {
+      preset: UVA,
+      options: {
+         prefix: 'p',
+         darkModeSelector: '.dpg-dark'
+      }
+   }
+})
+
+app.component("Button", Button)
+
+
+// Per some suggestions on vue / pinia git hub issue reports, create and add pinia support LAST
+// and use the chained form of the setup. This to avid problems where the vuew dev tools fail to
+// include pinia in the tools
+app.use( router )
+app.use(createPinia().use( ({ store }) => {
+   store.router = markRaw(router)
+}))
 
 // actually mount to DOM
 app.mount('#app')

@@ -8,9 +8,9 @@
          <WaitSpinner  v-if="searchStore.working && searchStore.hits.length > 0" :message="waitMessage" :overlay="true"/>
          <div class="toolbar">
             <span class="controls">
-               <button @click="refineClicked">Refine Search</button>
-               <button @click="newClicked">New Search</button>
-               <button @click="csvClicked">Export CSV</button>
+               <Button size="small" @click="refineClicked">Refine Search</button>
+               <Button size="small" @click="newClicked">New Search</button>
+               <Button size="small" @click="csvClicked">Export CSV</button>
             </span>
             <span class="info">
                Showing {{searchStore.hits.length}} of {{searchStore.totalHits}} results
@@ -34,9 +34,7 @@
                   </div>
                </span>
             </div>
-            <div class="more" v-if="hasMore">
-               <button class="more" @click="loadMore">Load More</button>
-            </div>
+            <Button  v-if="hasMore" @click="loadMore">Load More</button>
          </div>
       </template>
    </div>
@@ -118,7 +116,7 @@ const formatData = (( field ) => {
    margin-top: 20px;
 }
 .results {
-   padding: 25px;
+   padding-bottom: 50px;
    h1 {
       font-size: 1.4em;
       color: var(--uvalib-brand-orange);
@@ -134,21 +132,14 @@ const formatData = (( field ) => {
       align-items: center;
       border-top: 1px solid var(--uvalib-grey);
       border-bottom: 1px solid var(--uvalib-grey);
-      button {
-         margin-right: 5px;
-         background-color: var(--uvalib-brand-blue-light);
-         border: 1px solid var(--uvalib-brand-blue-light);
-         color: white;
-         border-radius: 5px;
-         padding: 5px 10px;
-         font-weight: bold;
-         &:hover {
-            background-color: var(--uvalib-brand-blue-lighter);
-         }
+      .controls {
+         display: flex;
+         flex-flow: row nowrap;
+         gap: 10px;
       }
    }
    .hits {
-      position: relative;
+      padding: 5px 30px;
    }
    .hit {
       font-size: 0.9em;
@@ -159,10 +150,8 @@ const formatData = (( field ) => {
       margin-bottom: 25px;
       border: 1px solid var(--uvalib-grey-light);
       border-radius: 5px;
-      box-shadow: 0 1px 3px rgb(0 0 0 / 6%), 0 1px 2px rgb(0 0 0 / 12%);
 
       .num {
-         color: #aaa;
          font-weight: bolder;
          display: inline-block;
          padding: 0 10px;
@@ -197,19 +186,6 @@ const formatData = (( field ) => {
             -moz-hyphens: auto;
             hyphens: auto;
          }
-      }
-   }
-   button.more {
-      font-size: 1.1em;
-      font-weight: 100;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      background-color: var(--uvalib-brand-blue-light);
-      border: 1px solid var(--uvalib-brand-blue-light);
-      color: white;
-      &:hover {
-         background-color: var(--uvalib-brand-blue-lighter);
       }
    }
 }

@@ -1,0 +1,19 @@
+.p-dialog-mask {
+   .p-dialog {
+      .p-dialog-header {
+         background: var(--uvalib-teal-lightest);
+         border-bottom: 1px solid var(--uvalib-teal-light);
+         border-radius: 4px 4px 0 0;
+         margin-bottom: 25px;
+      }
+   }
+}
+
+.sticky {
+   position: fixed;
+   z-index: 1000;
+   top: 0;
+   div.p-paginator.p-component {
+      border-bottom: 1px solid var(--uvalib-grey-light);
+   }
+}

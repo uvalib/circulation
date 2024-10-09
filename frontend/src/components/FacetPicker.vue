@@ -1,7 +1,7 @@
 <template>
    <Dialog v-model:visible="props.show" :modal="true" @show="pickerOpened"
       :header="`${props.section}: ${searchStore.facetLabel(props.section, props.facet)}`"
-      @hide="closePicker" :closable="false"
+      @hide="closePicker" style="width: 60%"
    >
       <Listbox v-model="selections" :options="facetValues" multiple optionLabel="label" optionValue="value" filter class="w-full md:w-14rem" />
       <div class="selections">
@@ -11,11 +11,11 @@
       <template #footer>
          <div class="toolbar">
             <div>
-               <Button severity="secondary" class="right-pad" @click="selectAll">Select All</Button>
+               <Button severity="secondary" @click="selectAll">Select All</Button>
                <Button severity="secondary" @click="clearAll">Clear All</Button>
             </div>
             <div>
-               <Button severity="secondary" class="right-pad" @click="closePicker">Cancel</Button>
+               <Button severity="secondary" @click="closePicker">Cancel</Button>
                <Button severity="primary" @click="applySelections">Apply</Button>
             </div>
          </div>
@@ -96,9 +96,11 @@ const selectAll = (() => {
    display: flex;
    flex-flow: row nowrap;
    justify-content: space-between;
-   width: 100%;
-   button.right-pad {
-      margin-right: 10px;
+   flex: 1;
+   div {
+      display: flex;
+      flex-flow: row nowrap;
+      gap: 10px;
    }
 }
 
