@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import { createFetch } from '@vueuse/core'
 import { useJwt } from '@vueuse/integrations/useJwt'
 
 export const useSearchStore = defineStore('search', {
@@ -22,7 +22,8 @@ export const useSearchStore = defineStore('search', {
       hits: [],
       totalHits: -1,
       maxExport: 10000,
-      sort: "checkout_date%20asc"
+      sort: "checkout_date%20asc",
+      useAuthFetch: null,
    }),
 	getters: {
       allDay: state => {
@@ -196,17 +197,17 @@ export const useSearchStore = defineStore('search', {
          }
       },
 
-      getFacets() {
+      async getFacets() {
          if ( this.facets.length > 0) return
 
          this.working =  true
-         axios.get( `/api/facets` ).then( response => {
-            this.setFacets(response.data)
-            this.working =  false
-         }).catch ( error => {
-            this.setFatalError(error)
-            this.working =  false
-         })
+         const {error, data} = await this.useAuthFetch("/api/facets").get().json()
+         if ( error.value ) {
+            this.setFatalError(error.value)
+         } else {
+            this.setFacets( data.value )
+         }
+         this.working = false
       },
 
       setJWT(jwt) {
@@ -217,38 +218,37 @@ export const useSearchStore = defineStore('search', {
             const { payload } = useJwt(jwt)
             this.computeID = payload.value.computeID
 
-            // add interceptor to put bearer token in header
-            axios.interceptors.request.use(config => {
-               config.headers['Authorization'] = 'Bearer ' + jwt
-               return config
-            }, error => {
-               return Promise.reject(error)
-            })
-
-            // Catch 401 errors and redirect to an expired auth page
-            axios.interceptors.response.use(
-               res => res,
-               err => {
-                  console.log("failed response for "+err.config.url)
-                  console.log(err)
-                  if (err.config.url.match(/\/authenticate/)) {
-                     this.router.push("/forbidden")
-                  } else {
-                     if (err.response && err.response.status == 401) {
+            // create an authorised useFetch
+            const store = this
+            this.useAuthFetch = createFetch({
+               options: {
+                 beforeFetch({ options }) {
+                   options.headers.Authorization = `Bearer ${jwt}`
+                   return { options }
+                 },
+                 updateDataOnError: true,
+                 onFetchError(ctx) {
+                     console.log("ON DETCH ERROR")
+                     console.log( ctx.response.status )
+                     console.log( ctx )
+                     if ( ctx.response.status == 401 ) {
                         localStorage.removeItem("cq_jwt")
-                        this.jwt = ""
-                        this.computeID = ""
-                        this.router.push("/expired")
-                        return new Promise(() => { })
+                        store.jwt = ""
+                        store.computeID = ""
+                        store.router.push("/expired")
+                        ctx.error = null
                      }
-                  }
-                  return Promise.reject(err)
-               }
-            )
+                     return ctx
+                  },
+               },
+               // fetchOptions: {
+               //   mode: 'cors',
+               // },
+            })
          }
       },
 
-      search(mode) {
+      async search(mode) {
          this.working =  true
          let req = {
             date: this.dateParam,
@@ -266,12 +266,16 @@ export const useSearchStore = defineStore('search', {
             this.page++
             req.pagination =  {start: this.page*this.pageSize, rows: this.pageSize}
          }
-         axios.post( url, req ).then( response => {
+
+         const {error, data} = await this.useAuthFetch(url).post(req)
+         if ( error.value ) {
+            this.setFatalError(error.value)
+         } else {
             if ( mode == "export") {
-               const fileURL = window.URL.createObjectURL(new Blob([response.data]));
+               const fileURL = window.URL.createObjectURL(new Blob([data.value]));
                const fileLink = document.createElement('a');
                fileLink.href = fileURL;
-               fileLink.setAttribute('download', response.headers["content-disposition"].split("filename=")[1])
+               fileLink.setAttribute('download', "export.csv")
                document.body.appendChild(fileLink);
                fileLink.click();
                window.URL.revokeObjectURL(fileURL);
@@ -279,14 +283,13 @@ export const useSearchStore = defineStore('search', {
                if (mode == "new") {
                   this.clearSearchHits()
                }
-               this.addSearchHits(response.data)
-               this.router.push("/results")
+               if ( data.value ) {
+                  this.addSearchHits( JSON.parse(data.value) )
+                  this.router.push("/results")
+               }
             }
-            this.working =  false
-         }).catch( error => {
-            this.setMessage(error)
-            this.working =  false
-         })
+         }
+         this.working =  false
       }
    },
 })
