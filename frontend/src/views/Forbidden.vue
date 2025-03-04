@@ -13,9 +13,4 @@
    padding: 25px;
    min-height: 600px;
 }
-h1 {
-   font-size: 1.4em;
-   color: var(--uvalib-brand-orange);
-   margin-bottom: 35px;
-}
 </style>

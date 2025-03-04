@@ -185,11 +185,6 @@ const search = () => {
       padding: 10px;
       background: var(--uvalib-teal-light);
    }
-   h1 {
-      font-size: 1.4em;
-      color: var(--uvalib-brand-orange);
-      margin-bottom: 25px;
-   }
    .toolbar {
       margin-top: 15px;
       padding: 25px 20px;

@@ -27,9 +27,4 @@ function signinClick() {
       font-size: 1.25em;
    }
 }
-h1 {
-   font-size: 1.4em;
-   color: var(--uvalib-brand-orange);
-   margin-bottom: 35px;
-}
 </style>

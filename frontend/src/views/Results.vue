@@ -117,11 +117,6 @@ const formatData = (( field ) => {
 }
 .results {
    padding-bottom: 50px;
-   h1 {
-      font-size: 1.4em;
-      color: var(--uvalib-brand-orange);
-      margin-bottom: 35px;
-   }
    .toolbar {
       padding: 10px;
       background: var(--uvalib-grey-lightest);

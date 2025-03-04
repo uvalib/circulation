@@ -56,6 +56,11 @@ const searchStore = useSearchStore()
 body {
    margin: 0;
    padding: 0;
+   h1 {
+      font-size: 1.4em;
+      color: var(--uvalib-brand-blue);
+      margin-bottom: 35px;
+   }
 }
 div.header {
    background-color: var(--uvalib-brand-blue);
@@ -100,10 +105,5 @@ div.header {
 }
 .fatal-err {
    padding-top: 25px;
-   h1 {
-      font-size: 1.4em;
-      color: var(--uvalib-brand-orange);
-      margin-bottom: 35px;
-   }
 }
 </style>
