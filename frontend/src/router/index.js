@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useCookies } from '@vueuse/integrations/useCookies'
+import { useCookies } from "vue3-cookies"
 import { useSearchStore } from '@/stores/search'
 
 const routes = [
@@ -32,7 +32,7 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
    const searchStore = useSearchStore()
-   const cookies = useCookies()
+   const { cookies } = useCookies()
 
    if (to.path === '/granted') {
       const jwtStr = cookies.get("cq_jwt")

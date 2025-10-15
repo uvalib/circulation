@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type jwtClaims struct {
@@ -18,7 +18,7 @@ type jwtClaims struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 	AdminURL  string `json:"adminURL"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 func (svc *serviceContext) authenticate(c *gin.Context) {
@@ -57,9 +57,9 @@ func (svc *serviceContext) authenticate(c *gin.Context) {
 	expirationTime := time.Now().Add(8 * time.Hour)
 	claims := jwtClaims{
 		ComputeID: computingID,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-			Issuer:    "cirulation-query",
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+			Issuer:    "circulation-query",
 		},
 	}
 
