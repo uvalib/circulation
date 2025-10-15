@@ -12,12 +12,7 @@ import (
 )
 
 type jwtClaims struct {
-	UserID    uint   `json:"userID"`
 	ComputeID string `json:"computeID"`
-	Role      string `json:"role"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	AdminURL  string `json:"adminURL"`
 	jwt.RegisteredClaims
 }
 
@@ -95,8 +90,8 @@ func (svc *serviceContext) authMiddleware(c *gin.Context) {
 	}
 
 	log.Printf("INFO: validating JWT auth token...")
-	jwtClaims := &jwtClaims{}
-	_, jwtErr := jwt.ParseWithClaims(tokenStr, jwtClaims, func(token *jwt.Token) (interface{}, error) {
+	jwtClaims := jwtClaims{}
+	_, jwtErr := jwt.ParseWithClaims(tokenStr, &jwtClaims, func(token *jwt.Token) (any, error) {
 		return []byte(svc.JWTKey), nil
 	})
 	if jwtErr != nil {
@@ -107,20 +102,8 @@ func (svc *serviceContext) authMiddleware(c *gin.Context) {
 
 	log.Printf("INFO: got valid bearer token: [%s] for %s", tokenStr, jwtClaims.ComputeID)
 	c.Set("jwt", tokenStr)
-	c.Set("claims", jwtClaims)
+	c.Set("computeID", jwtClaims.ComputeID)
 	c.Next()
-}
-
-func getJWTClaims(c *gin.Context) *jwtClaims {
-	claims, signedIn := c.Get("claims")
-	if signedIn == false {
-		return nil
-	}
-	jwtClaims, ok := claims.(*jwtClaims)
-	if !ok {
-		return nil
-	}
-	return jwtClaims
 }
 
 // getBearerToken is a helper to extract the token from headers

@@ -228,7 +228,7 @@ export const useSearchStore = defineStore('search', {
                  },
                  updateDataOnError: true,
                  onFetchError(ctx) {
-                     console.log("ON DETCH ERROR")
+                     console.log("ON FETCH ERROR")
                      console.log( ctx.response.status )
                      console.log( ctx )
                      if ( ctx.response.status == 401 ) {

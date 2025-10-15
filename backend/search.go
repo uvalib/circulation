@@ -53,11 +53,6 @@ type searchHit struct {
 	Sections []sectionData `json:"sections"`
 }
 
-type csvChunk struct {
-	BytesBuffer *bytes.Buffer
-	Error       error
-}
-
 func (svc *serviceContext) searchHandler(c *gin.Context) {
 	user := c.GetString("user")
 	export := c.Query("export")
